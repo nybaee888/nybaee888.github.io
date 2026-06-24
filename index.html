@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hyperliquid Whale Monitor & AI Analyst</title>
-    <!-- Menggunakan Tailwind CSS untuk UI yang bersih -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
 <body class="bg-gray-900 text-gray-100 font-sans min-h-screen p-6">
@@ -13,16 +12,15 @@
         <header class="mb-8 border-b border-gray-800 pb-4 flex justify-between items-center">
             <div>
                 <h1 class="text-2xl font-bold text-blue-400">Hyperliquid Whale Tracker & AI Agent</h1>
-                <p class="text-sm text-gray-400">Analisis posisi Whales dan Berita Global secara Real-Time</p>
+                <p class="text-sm text-gray-400">Analisis posisi Whales, Berita Global, dan Rekomendasi Setup Trading</p>
             </div>
-            <!-- Tombol Simulasi Perubahan Data -->
             <button onclick="updateAllData()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-medium text-sm transition-colors cursor-pointer">
                 Simulasikan Perbarui Data & Berita
             </button>
         </header>
 
-        <!-- Layout Utama: Grid 3 Kolom (2 Kolom Data/AI, 1 Kolom Berita) -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Layout Utama -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
             
             <!-- KOLOM 1 & 2: Data Pasar & AI Reasoning -->
             <div class="lg:col-span-2 space-y-6">
@@ -43,14 +41,14 @@
                     </div>
                 </div>
 
-                <!-- Kotak Analisis AI -->
+                <!-- Kotak Analisis AI & Trading Signal -->
                 <div class="bg-blue-950/30 border border-blue-900 rounded-lg p-6">
                     <div class="flex items-center space-x-2 mb-4">
                         <span class="flex h-2 w-2 relative">
                             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
                             <span class="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
                         </span>
-                        <h3 class="text-lg font-bold text-blue-300">AI Reasoning & Korelasi Pasar</h3>
+                        <h3 class="text-lg font-bold text-blue-300">AI Reasoning & Trading Setup</h3>
                     </div>
                     
                     <div id="ai-reasoning" class="text-gray-300 leading-relaxed space-y-4 text-sm">
@@ -61,7 +59,7 @@
             </div>
 
             <!-- KOLOM 3: Live Global News Feed -->
-            <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 flex flex-col h-[420px]">
+            <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 flex flex-col h-[460px]">
                 <div class="flex items-center justify-between border-b border-gray-700 pb-3 mb-4">
                     <div class="flex items-center space-x-2">
                         <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
@@ -70,52 +68,126 @@
                     <span class="text-xs text-gray-500" id="news-time">Updated just now</span>
                 </div>
 
-                <!-- Wadah List Berita -->
                 <div id="news-feed" class="space-y-4 overflow-y-auto pr-1 flex-1 text-xs">
                     <!-- Diisi oleh JavaScript -->
                 </div>
             </div>
-
         </div>
+
+        <!-- STATUS UPDATE WEBSITE & API -->
+        <div class="bg-gray-800/60 border border-gray-800 rounded-lg p-4">
+            <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Website & Data Source Sync Status</h3>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
+                <div class="bg-gray-900/40 p-3 rounded border border-gray-800 flex justify-between items-center">
+                    <div>
+                        <p class="text-gray-400 font-semibold">Hyperliquid API</p>
+                        <p id="sync-hl" class="text-[10px] text-gray-500">Syncing...</p>
+                    </div>
+                    <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                </div>
+                <div class="bg-gray-900/40 p-3 rounded border border-gray-800 flex justify-between items-center">
+                    <div>
+                        <p class="text-gray-400 font-semibold">CoinGecko Data</p>
+                        <p id="sync-cg" class="text-[10px] text-gray-500">Syncing...</p>
+                    </div>
+                    <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                </div>
+                <div class="bg-gray-900/40 p-3 rounded border border-gray-800 flex justify-between items-center">
+                    <div>
+                        <p class="text-gray-400 font-semibold">Bloomberg Terminal</p>
+                        <p id="sync-bb" class="text-[10px] text-gray-500">Syncing...</p>
+                    </div>
+                    <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                </div>
+                <div class="bg-gray-900/40 p-3 rounded border border-gray-800 flex justify-between items-center">
+                    <div>
+                        <p class="text-gray-400 font-semibold">CoinDesk Feed</p>
+                        <p id="sync-cd" class="text-[10px] text-gray-500">Syncing...</p>
+                    </div>
+                    <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <script>
-        // Logika AI untuk memberikan alasan berdasarkan kondisi pasar & berita terkini
+        // Logika AI untuk memberikan alasan pasar beserta rekomendasi Entry, TP, dan SL
         function generateAIReasoning(market, news) {
             let liquidationText = "";
             let entryText = "";
+            let tradeSetupHtml = "";
 
-            // 1. Logika Penentuan Alasan Likuidasi
-            if (market.dominantLiquidation === 'Short') {
-                liquidationText = `Terjadi lonjakan likuidasi <strong>Short</strong> senilai $${market.liquidationVolume.toLocaleString()} pada aset ${market.asset}. <strong>Alasannya:</strong> Harga melesat naik menembus area resistance kuat, memicu <em>short squeeze</em>. Whales yang memasang posisi short terpaksa melakukan buyback otomatis di harga pasar untuk membatasi kerugian.`;
-            } else {
-                liquidationText = `Terjadi lonjakan likuidasi <strong>Long</strong> senilai $${market.liquidationVolume.toLocaleString()} pada aset ${market.asset}. <strong>Alasannya:</strong> Terjadi penurunan harga yang agresif (dump) yang menembus level support krusial. Margin minimum para whales tidak mencukupi, memicu likuidasi berantai (long squeeze).`;
-            }
-
-            // 2. Logika Penentuan Alasan Entry Whales dikaitkan dengan Berita Terkini
             const headlineBerita = news[0].title;
+
             if (market.dominantEntry === 'Long') {
-                entryText = `Whales saat ini dominan membuka posisi <strong>Long</strong> (+${market.oiChange}% Open Interest). <strong>Alasannya:</strong> Sentimen didorong oleh kabar global terkini terkait <em>"${headlineBerita}"</em>. Masuknya modal institusi atau berkurangnya tekanan jual global memicu whales untuk berakumulasi kembali memanfaatkan momentum bullish.`;
+                // 1. Analisis Alasan Pasar Bullish
+                liquidationText = `Terjadi lonjakan likuidasi <strong>Short</strong> sebesar $${market.liquidationVolume.toLocaleString()} pada ${market.asset}. <strong>Alasannya:</strong> Harga menembus area resistance krusial, memaksa whales short melakukan buyback paksa.`;
+                entryText = `Whales dominan membuka posisi <strong>Long</strong> (+${market.oiChange}% Open Interest). <strong>Alasannya:</strong> Sentimen didorong oleh kabar global <em>"${headlineBerita}"</em> yang memicu masuknya modal institusi baru secara agresif.`;
+                
+                // 2. Setup Trading Rekomendasi AI (Long)
+                tradeSetupHtml = `
+                    <div class="mt-4 p-4 bg-green-950/40 border border-green-800 rounded-lg">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-bold text-green-400 uppercase tracking-wide">💡 REKOMENDASI SETUP: LONG</span>
+                            <span class="text-xs text-gray-400">Harga Saat Ini: $${market.currentPrice.toLocaleString()}</span>
+                        </div>
+                        <p class="text-xs text-gray-300 mb-3"><strong>Alasan Entry:</strong> Mengikuti momentum <em>whales accumulation</em> pasca breakdown resistance didukung sentimen berita positif global. Tren jangka pendek sangat bullish.</p>
+                        <div class="grid grid-cols-3 gap-2 text-center text-xs font-mono">
+                            <div class="bg-gray-900 p-2 rounded border border-gray-800">
+                                <span class="block text-[10px] text-gray-500">ENTRY ZONE</span>
+                                <span class="text-green-400 font-bold">$${market.setup.entry}</span>
+                            </div>
+                            <div class="bg-gray-900 p-2 rounded border border-gray-800">
+                                <span class="block text-[10px] text-gray-500">TAKE PROFIT</span>
+                                <span class="text-blue-400 font-bold">$${market.setup.tp}</span>
+                            </div>
+                            <div class="bg-gray-900 p-2 rounded border border-gray-800">
+                                <span class="block text-[10px] text-gray-500">STOP LOSS</span>
+                                <span class="text-red-400 font-bold">$${market.setup.sl}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
             } else {
-                entryText = `Whales dominan melakukan entry <strong>Short</strong> (${market.oiChange}% Open Interest). <strong>Alasannya:</strong> Pasar bereaksi terhadap sentimen eksternal, khususnya isu <em>"${headlineBerita}"</em>. Whales memanfaatkan kenaikan harga sementara (fakeout) untuk membangun posisi Short berukuran besar di harga premium karena mengantisipasi penurunan lanjutan.`;
+                // 1. Analisis Alasan Pasar Bearish
+                liquidationText = `Terjadi lonjakan likuidasi <strong>Long</strong> sebesar $${market.liquidationVolume.toLocaleString()} pada ${market.asset}. <strong>Alasannya:</strong> Penurunan harga yang tajam memicu long-squeeze beruntun akibat margin yang tidak mencukupi.`;
+                entryText = `Whales dominan melakukan entry <strong>Short</strong> (+${market.oiChange}% Open Interest). <strong>Alasannya:</strong> Pasar merespons negatif isu eksternal <em>"${headlineBerita}"</em>. Whales memanfaatkan kenaikan sementara (fakeout) untuk membuka short di harga premium sebelum dump lanjutan.`;
+                
+                // 2. Setup Trading Rekomendasi AI (Short)
+                tradeSetupHtml = `
+                    <div class="mt-4 p-4 bg-red-950/40 border border-red-800 rounded-lg">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-bold text-red-400 uppercase tracking-wide">💡 REKOMENDASI SETUP: SHORT</span>
+                            <span class="text-xs text-gray-400">Harga Saat Ini: $${market.currentPrice.toLocaleString()}</span>
+                        </div>
+                        <p class="text-xs text-gray-300 mb-3"><strong>Alasan Entry:</strong> Distribusi modal besar oleh whales di zona resistance lokal. Konfirmasi struktur breakdown divalidasi oleh meningkatnya Open Interest Short di bursa derivatif.</p>
+                        <div class="grid grid-cols-3 gap-2 text-center text-xs font-mono">
+                            <div class="bg-gray-900 p-2 rounded border border-gray-800">
+                                <span class="block text-[10px] text-gray-500">ENTRY ZONE</span>
+                                <span class="text-red-400 font-bold">$${market.setup.entry}</span>
+                            </div>
+                            <div class="bg-gray-900 p-2 rounded border border-gray-800">
+                                <span class="block text-[10px] text-gray-500">TAKE PROFIT</span>
+                                <span class="text-blue-400 font-bold">$${market.setup.tp}</span>
+                            </div>
+                            <div class="bg-gray-900 p-2 rounded border border-gray-800">
+                                <span class="block text-[10px] text-gray-500">STOP LOSS</span>
+                                <span class="text-red-400 font-bold">$${market.setup.sl}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
             }
 
-            return `
-                <p>${liquidationText}</p>
-                <div class="border-t border-gray-800 my-3"></div>
-                <p>${entryText}</p>
-            `;
+            return `<p>${liquidationText}</p><div class="border-t border-gray-800 my-3"></div><p>${entryText}</p>${tradeSetupHtml}`;
         }
 
-        // Fungsi memperbarui komponen Berita
         function renderNews(newsList) {
             const newsFeedEl = document.getElementById('news-feed');
             newsFeedEl.innerHTML = '';
-
             newsList.forEach(news => {
-                const sentimentClass = news.sentiment === 'Bullish' ? 'bg-green-950 text-green-400 border-green-800' : 
-                                       news.sentiment === 'Bearish' ? 'bg-red-950 text-red-400 border-red-800' : 'bg-gray-700 text-gray-300 border-gray-600';
-                
+                const sentimentClass = news.sentiment === 'Bullish' ? 'bg-green-950 text-green-400 border-green-800' : 'bg-red-950 text-red-400 border-red-800';
                 const card = `
                     <div class="p-3 bg-gray-900/50 border border-gray-700/60 rounded hover:border-gray-600 transition-all">
                         <div class="flex justify-between items-start mb-1">
@@ -128,11 +200,9 @@
                 `;
                 newsFeedEl.innerHTML += card;
             });
-            
             document.getElementById('news-time').innerText = "Updated: " + new Date().toLocaleTimeString();
         }
 
-        // Fungsi memperbarui komponen Data Pasar & AI
         function renderMarketAndAI(marketData, newsList) {
             const liqStatusEl = document.getElementById('liq-status');
             liqStatusEl.innerText = `${marketData.dominantLiquidation} Liquidation Dominant`;
@@ -145,54 +215,48 @@
             document.getElementById('liq-value').innerText = `$${marketData.liquidationVolume.toLocaleString()}`;
             document.getElementById('oi-change').innerText = `Open Interest: ${marketData.oiChange > 0 ? '+' : ''}${marketData.oiChange}%`;
 
-            // Tampilkan text AI Reasoning yang menghubungkan Market Data dengan Berita Utama
             document.getElementById('ai-reasoning').innerHTML = generateAIReasoning(marketData, newsList);
         }
 
-        // Data Simulasi (Mock Data) untuk demo interaktif
+        function updateSyncStatus() {
+            const timeString = "Sukses " + new Date().toLocaleTimeString();
+            document.getElementById('sync-hl').innerText = timeString;
+            document.getElementById('sync-cg').innerText = timeString;
+            document.getElementById('sync-bb').innerText = timeString;
+            document.getElementById('sync-cd').innerText = timeString;
+        }
+
         let toggleState = true;
         function updateAllData() {
             let currentMarket = {};
             let currentNews = [];
             
             if (toggleState) {
-                // Skenario A: Pasar Naik / Bullish
-                currentMarket = { asset: 'BTC', dominantLiquidation: 'Short', liquidationVolume: 5420000, dominantEntry: 'Long', oiChange: 4.8 };
+                // Skenario Long Setup
+                currentMarket = { 
+                    asset: 'BTC', currentPrice: 96500, dominantLiquidation: 'Short', liquidationVolume: 5420000, dominantEntry: 'Long', oiChange: 4.8,
+                    setup: { entry: "96,200 - 96,500", tp: "98,000", sl: "95,400" }
+                };
                 currentNews = [
-                    {
-                        title: "BlackRock Mencatat Rekor Inflow Baru pada Spot Bitcoin ETF",
-                        summary: "Inflow institusional global melonjak tajam dalam 24 jam terakhir, mengurangi tekanan jual dari pemegang jangka panjang.",
-                        source: "Bloomberg", time: "5 mnt lalu", sentiment: "Bullish"
-                    },
-                    {
-                        title: "Franklin Templeton Selesaikan Akuisisi Manajemen Aset Kripto Kakap",
-                        summary: "Langkah ini memperkuat posisi infrastruktur institusi untuk produk-produk derivatif aktif di pasar kripto global.",
-                        source: "Reuters", time: "2 jam lalu", sentiment: "Bullish"
-                    }
+                    { title: "BlackRock Mencatat Rekor Inflow Baru pada Spot Bitcoin ETF", summary: "Inflow institusional global melonjak tajam dalam 24 jam terakhir.", source: "Bloomberg", time: "5 mnt lalu", sentiment: "Bullish" }
                 ];
             } else {
-                // Skenario B: Pasar Turun / Bearish
-                currentMarket = { asset: 'BTC', dominantLiquidation: 'Long', liquidationVolume: 8150000, dominantEntry: 'Short', oiChange: 6.2 };
+                // Skenario Short Setup
+                currentMarket = { 
+                    asset: 'BTC', currentPrice: 94100, dominantLiquidation: 'Long', liquidationVolume: 8150000, dominantEntry: 'Short', oiChange: 6.2,
+                    setup: { entry: "94,100 - 94,400", tp: "92,000", sl: "95,250" }
+                };
                 currentNews = [
-                    {
-                        title: "Data Kalshi Menunjukkan Probabilitas Koreksi Menuju Level Support Kuat",
-                        summary: "Akibat peralihan likuiditas global ke sektor ekuitas kecerdasan buatan (AI), volume perdagangan spot crypto mengalami stagnasi temporer.",
-                        source: "CoinDesk", time: "12 mnt lalu", sentiment: "Bearish"
-                    },
-                    {
-                        title: "Whale Berisiko Terkena Likuidasi Raksasa $30 Juta di Market Derivatif",
-                        summary: "Data on-chain memantau adanya posisi long dengan leverage 20x di bursa derivatif yang mendekati harga likuidasi kritis akibat penurunan harga regional.",
-                        source: "Cointelegraph", time: "1 jam lalu", sentiment: "Bearish"
-                    }
+                    { title: "Data Kalshi Menunjukkan Probabilitas Koreksi Menuju Level Support Kuat", summary: "Volume perdagangan spot crypto mengalami stagnasi temporer.", source: "CoinDesk", time: "12 mnt lalu", sentiment: "Bearish" }
                 ];
             }
             
             renderNews(currentNews);
             renderMarketAndAI(currentMarket, currentNews);
+            updateSyncStatus();
             toggleState = !toggleState;
         }
 
-        // Load data awal otomatis saat web dibuka
         window.onload = function() {
             updateAllData();
         };
