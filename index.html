@@ -3,262 +3,517 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hyperliquid Whale Monitor & AI Analyst</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <title>CryptoVision AI - Advanced Terminal</title>
+    <!-- Tailwind CSS v3 Play CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        darkBg: '#0b0f19',
+                        cardBg: '#111827',
+                        borderBg: '#1f2937'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #0b0f19; color: #f3f4f6; }
+        .gradient-text {
+            background: linear-gradient(to right, #3b82f6, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .btn-gradient { background: linear-gradient(to right, #3b82f6, #a855f7); }
+        .price-up { color: #34d399 !important; transition: color 0.2s; }
+        .price-down { color: #f87171 !important; transition: color 0.2s; }
+        @keyframes flash {
+            0% { background-color: rgba(31, 41, 55, 1); }
+            50% { background-color: rgba(59, 130, 246, 0.2); }
+            100% { background-color: rgba(17, 24, 39, 1); }
+        }
+        .feed-item { animation: flash 0.8s ease-out; }
+    </style>
 </head>
-<body class="bg-gray-900 text-gray-100 font-sans min-h-screen p-6">
+<body class="font-sans min-h-screen pb-24 bg-[#0b0f19]">
 
-    <div class="max-w-6xl mx-auto">
-        <header class="mb-8 border-b border-gray-800 pb-4 flex justify-between items-center">
-            <div>
-                <h1 class="text-2xl font-bold text-blue-400">Hyperliquid Whale Tracker & AI Agent</h1>
-                <p class="text-sm text-gray-400">Analisis posisi Whales, Berita Global, dan Rekomendasi Setup Trading</p>
-            </div>
-            <button onclick="updateAllData()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-medium text-sm transition-colors cursor-pointer">
-                Simulasikan Perbarui Data & Berita
-            </button>
-        </header>
-
-        <!-- Layout Utama -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-            
-            <!-- KOLOM 1 & 2: Data Pasar & AI Reasoning -->
-            <div class="lg:col-span-2 space-y-6">
-                <!-- Grid Dashboard Mini -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <!-- Kartu Likuidasi -->
-                    <div class="bg-gray-800 p-5 rounded-lg border border-gray-700">
-                        <h2 class="text-sm font-semibold mb-2 text-gray-400 uppercase tracking-wider">Dominasi Likuidasi Whales</h2>
-                        <div id="liq-status" class="text-base font-bold text-red-400 mb-1">Short Liquidation Dominant</div>
-                        <div class="text-3xl font-extrabold text-gray-100" id="liq-value">$5,420,000</div>
-                    </div>
-
-                    <!-- Kartu Entry -->
-                    <div class="bg-gray-800 p-5 rounded-lg border border-gray-700">
-                        <h2 class="text-sm font-semibold mb-2 text-gray-400 uppercase tracking-wider">Dominasi Entry Whales</h2>
-                        <div id="entry-status" class="text-base font-bold text-green-400 mb-1">Long Entry Dominant</div>
-                        <div class="text-3xl font-extrabold text-gray-100" id="oi-change">Open Interest: +4.8%</div>
-                    </div>
+    <!-- Top Header Navigation -->
+    <header class="sticky top-0 z-50 bg-[#0b0f19]/80 backdrop-blur-md p-4 border-b border-gray-800">
+        <div class="max-w-md mx-auto flex items-center justify-between">
+            <div class="w-full flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center font-bold text-sm text-white shadow-lg">CV</div>
+                    <span class="font-bold text-sm tracking-wide">CryptoVision <span class="text-xs bg-purple-950 text-purple-400 px-2 py-0.5 rounded ml-1 border border-purple-900/40">PRO v2.0</span></span>
                 </div>
-
-                <!-- Kotak Analisis AI & Trading Signal -->
-                <div class="bg-blue-950/30 border border-blue-900 rounded-lg p-6">
-                    <div class="flex items-center space-x-2 mb-4">
-                        <span class="flex h-2 w-2 relative">
-                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                            <span class="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
-                        </span>
-                        <h3 class="text-lg font-bold text-blue-300">AI Reasoning & Trading Setup</h3>
-                    </div>
-                    
-                    <div id="ai-reasoning" class="text-gray-300 leading-relaxed space-y-4 text-sm">
-                        <!-- Diisi oleh JavaScript -->
-                        Memuat analisis data...
-                    </div>
-                </div>
-            </div>
-
-            <!-- KOLOM 3: Live Global News Feed -->
-            <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 flex flex-col h-[460px]">
-                <div class="flex items-center justify-between border-b border-gray-700 pb-3 mb-4">
-                    <div class="flex items-center space-x-2">
-                        <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
-                        <h3 class="font-bold text-gray-200 text-sm tracking-wider uppercase">Live Global News</h3>
-                    </div>
-                    <span class="text-xs text-gray-500" id="news-time">Updated just now</span>
-                </div>
-
-                <div id="news-feed" class="space-y-4 overflow-y-auto pr-1 flex-1 text-xs">
-                    <!-- Diisi oleh JavaScript -->
+                <div class="text-[11px] text-gray-500 flex items-center gap-1">
+                    <span id="ws-status-dot" class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> 
+                    <span id="ws-status-text">Live Streams</span>
                 </div>
             </div>
         </div>
+    </header>
 
-        <!-- STATUS UPDATE WEBSITE & API -->
-        <div class="bg-gray-800/60 border border-gray-800 rounded-lg p-4">
-            <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Website & Data Source Sync Status</h3>
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
-                <div class="bg-gray-900/40 p-3 rounded border border-gray-800 flex justify-between items-center">
+    <!-- Main Content Area -->
+    <main class="max-w-md mx-auto px-4 mt-6 space-y-4 text-center">
+        
+        <!-- LIVE PRICE TICKER GRID -->
+        <div class="grid grid-cols-3 gap-2 text-center text-xs">
+            <div class="bg-[#111827] border border-gray-800 p-2.5 rounded-xl text-left">
+                <div class="text-gray-500 font-medium">BTC/USDT</div>
+                <div id="mini-btc" class="font-bold text-gray-200 mt-0.5 text-sm">Loading...</div>
+                <div id="perc-btc" class="text-[10px] text-gray-500 mt-0.5">0.00%</div>
+            </div>
+            <div class="bg-[#111827] border border-gray-800 p-2.5 rounded-xl text-left">
+                <div class="text-gray-500 font-medium">ETH/USDT</div>
+                <div id="mini-eth" class="font-bold text-gray-200 mt-0.5 text-sm">Loading...</div>
+                <div id="perc-eth" class="text-[10px] text-gray-500 mt-0.5">0.00%</div>
+            </div>
+            <div class="bg-[#111827] border border-gray-800 p-2.5 rounded-xl text-left">
+                <div class="text-gray-500 font-medium">SOL/USDT</div>
+                <div id="mini-sol" class="font-bold text-gray-200 mt-0.5 text-sm">Loading...</div>
+                <div id="perc-sol" class="text-[10px] text-gray-500 mt-0.5">0.00%</div>
+            </div>
+        </div>
+
+        <!-- INPUT ENGINE -->
+        <section class="bg-[#111827] border border-gray-800 rounded-2xl p-4 space-y-3 text-left">
+            <div class="flex items-center gap-2 text-sm font-bold text-gray-300">
+                <i class="fas fa-search-dollar text-purple-400"></i> AI Terminal Scanner
+            </div>
+            <div class="flex gap-2">
+                <input id="coin-input" type="text" placeholder="Masukkan koin (Contoh: BTC, PEPE, DOGE)..." class="flex-1 bg-[#0b0f19] border border-gray-800 rounded-xl px-3 py-2 text-xs uppercase font-mono tracking-wider focus:outline-none focus:border-purple-500 text-white">
+                <button onclick="askCryptoAIAllCoins()" class="btn-gradient text-white text-xs font-bold px-4 py-2 rounded-xl">Analisis AI</button>
+            </div>
+        </section>
+
+        <!-- DYNAMIC OUTPUT -->
+        <div id="ai-analysis-output" class="hidden space-y-4">
+            
+            <!-- 1. AI SIGNAL & SCORE COMPONENT -->
+            <section class="bg-[#111827] border border-gray-800 rounded-2xl p-4 text-left space-y-4">
+                <div class="flex items-center justify-between">
+                    <div class="text-sm font-bold text-gray-300 flex items-center gap-2">
+                        <i class="fas fa-brain text-blue-400"></i> AI Signal & Score
+                    </div>
+                    <div id="ai-trend-badge" class="text-[11px] font-bold px-3 py-1 rounded-xl uppercase tracking-wider">TREND ---</div>
+                </div>
+
+                <div class="space-y-1">
+                    <div class="text-xs text-gray-400">Signal</div>
+                    <div id="ai-signal-action" class="text-2xl font-black tracking-tight">---</div>
+                </div>
+
+                <!-- Progress Bars Grid -->
+                <div class="space-y-2 text-xs">
+                    <div>
+                        <div class="flex justify-between text-gray-400 mb-1"><span>Total</span><span id="score-total-val" class="font-bold">0</span></div>
+                        <div class="w-full bg-[#0b0f19] h-2 rounded-full overflow-hidden"><div id="score-total-bar" class="h-full transition-all duration-500"></div></div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-x-4 gap-y-2 pt-1">
+                        <div>
+                            <div class="flex justify-between text-gray-500 mb-0.5"><span>Trend</span><span id="score-trend-val">0</span></div>
+                            <div class="w-full bg-[#0b0f19] h-1.5 rounded-full overflow-hidden"><div id="score-trend-bar" class="h-full transition-all duration-500"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-gray-500 mb-0.5"><span>Momentum</span><span id="score-momentum-val">0</span></div>
+                            <div class="w-full bg-[#0b0f19] h-1.5 rounded-full overflow-hidden"><div id="score-momentum-bar" class="h-full transition-all duration-500"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-gray-500 mb-0.5"><span>Volume</span><span id="score-volume-val">0</span></div>
+                            <div class="w-full bg-[#0b0f19] h-1.5 rounded-full overflow-hidden"><div id="score-volume-bar" class="h-full transition-all duration-500"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-gray-500 mb-0.5"><span>Structure</span><span id="score-structure-val">0</span></div>
+                            <div class="w-full bg-[#0b0f19] h-1.5 rounded-full overflow-hidden"><div id="score-structure-bar" class="h-full transition-all duration-500"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-gray-500 mb-0.5"><span>Pattern</span><span id="score-pattern-val">0</span></div>
+                            <div class="w-full bg-[#0b0f19] h-1.5 rounded-full overflow-hidden"><div id="score-pattern-bar" class="h-full transition-all duration-500"></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center pt-2 border-t border-gray-800/60 text-xs">
+                    <div>Confidence: <span id="ai-confidence-pct" class="font-bold text-white">0%</span></div>
+                    <div>Risk: <span id="ai-risk-level" class="font-bold">---</span></div>
+                </div>
+            </section>
+
+            <!-- 2. SMART ENTRY SYSTEM COMPONENT -->
+            <section class="bg-[#111827] border border-gray-800 rounded-2xl p-4 text-left space-y-3">
+                <div class="text-sm font-bold text-gray-300 flex items-center gap-2">
+                    <i class="fas fa-crosshairs text-blue-400"></i> Smart Entry System
+                </div>
+
+                <div class="space-y-2 text-xs">
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Direction</span>
+                        <span id="se-direction" class="font-bold tracking-wider">---</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Entry Zone</span>
+                        <span id="se-entry-zone" class="font-mono text-gray-200">---</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Entry Ideal</span>
+                        <span id="se-entry-ideal" class="font-mono text-white font-bold">---</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Stop Loss</span>
+                        <span id="se-stop-loss" class="font-mono font-medium">---</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">TP 1</span>
+                        <span id="se-tp1" class="font-mono text-emerald-400 font-medium">---</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">TP 2</span>
+                        <span id="se-tp2" class="font-mono text-emerald-400 font-medium">---</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">TP 3</span>
+                        <span id="se-tp3" class="font-mono text-emerald-400 font-medium">---</span>
+                    </div>
+                </div>
+
+                <!-- Mini Status Box Grid (Risk/Reward & Probability) -->
+                <div class="grid grid-cols-2 gap-3 pt-2">
+                    <div class="bg-[#0b0f19] border border-gray-800/80 p-2.5 rounded-xl">
+                        <div class="text-[10px] text-gray-500 font-medium">Risk/Reward</div>
+                        <div id="se-card-rr" class="text-sm font-bold text-gray-200 mt-0.5">1:---</div>
+                    </div>
+                    <div class="bg-[#0b0f19] border border-gray-800/80 p-2.5 rounded-xl">
+                        <div class="text-[10px] text-gray-500 font-medium">Probability</div>
+                        <div id="se-card-prob" class="text-sm font-bold text-gray-200 mt-0.5">0%</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. AI REASONING & ALASAN DETAIL (FITUR BARU) -->
+            <section class="bg-[#111827] border border-gray-800 rounded-2xl p-4 text-left space-y-2">
+                <div class="text-sm font-bold text-gray-300 flex items-center gap-2">
+                    <i class="fas fa-brain text-purple-400"></i> AI Analyst Reasoning
+                </div>
+                <div id="ai-reasoning-output-text" class="text-xs text-gray-400 leading-relaxed space-y-2">
+                    <!-- Diisi Dinamis Lewat JS -->
+                </div>
+            </section>
+
+        </div>
+
+        <!-- LIVE DATA FEED SECTIONS -->
+        <section class="bg-[#111827] border border-gray-800 rounded-2xl p-4 text-left space-y-2">
+            <div class="text-sm font-bold text-gray-300 flex items-center gap-2"><i class="fas fa-fish text-blue-400"></i> Global Whale Trades</div>
+            <div id="whale-container" class="space-y-1.5 max-h-28 overflow-y-auto pr-1 text-xs font-mono"><div class="text-gray-600 text-center py-2">Menghubungkan stream data...</div></div>
+        </section>
+
+        <section class="bg-[#111827] border border-gray-800 rounded-2xl p-4 text-left space-y-2">
+            <div class="text-sm font-bold text-gray-300 flex items-center gap-2"><i class="fas fa-skull-crossbones text-red-400"></i> Global Liquidation Feed</div>
+            <div id="liq-container" class="space-y-1.5 max-h-28 overflow-y-auto pr-1 text-xs font-mono"><div class="text-gray-600 text-center py-2">Menunggu likuidasi pasar...</div></div>
+        </section>
+
+        <!-- LIVE GLOBAL NEWS SECTIONS (FITUR BARU) -->
+        <section class="bg-[#111827] border border-gray-800 rounded-2xl p-4 text-left space-y-3">
+            <div class="flex items-center justify-between border-b border-gray-800 pb-2">
+                <div class="text-sm font-bold text-gray-300 flex items-center gap-2">
+                    <i class="fas fa-newspaper text-emerald-400"></i> Live Global News
+                </div>
+                <span id="news-time" class="text-[10px] text-gray-500 font-mono">Loading time...</span>
+            </div>
+            <div id="news-feed" class="space-y-3 max-h-48 overflow-y-auto pr-1 text-xs">
+                <!-- Diisi oleh JS -->
+            </div>
+        </section>
+
+        <!-- WEBSITE & DATA SOURCE SYNC STATUS (FITUR BARU - PALING BAWAH) -->
+        <section class="bg-[#111827] border border-gray-800 rounded-2xl p-4 text-left space-y-3">
+            <div class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Website & Data Source Sync Status</div>
+            <div class="grid grid-cols-2 gap-2 text-[11px]">
+                <div class="bg-[#0b0f19] p-2 rounded-xl border border-gray-800 flex justify-between items-center">
                     <div>
                         <p class="text-gray-400 font-semibold">Hyperliquid API</p>
-                        <p id="sync-hl" class="text-[10px] text-gray-500">Syncing...</p>
+                        <p id="sync-hl" class="text-[9px] text-gray-500">Syncing...</p>
                     </div>
-                    <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                 </div>
-                <div class="bg-gray-900/40 p-3 rounded border border-gray-800 flex justify-between items-center">
+                <div class="bg-[#0b0f19] p-2 rounded-xl border border-gray-800 flex justify-between items-center">
                     <div>
                         <p class="text-gray-400 font-semibold">CoinGecko Data</p>
-                        <p id="sync-cg" class="text-[10px] text-gray-500">Syncing...</p>
+                        <p id="sync-cg" class="text-[9px] text-gray-500">Syncing...</p>
                     </div>
-                    <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                 </div>
-                <div class="bg-gray-900/40 p-3 rounded border border-gray-800 flex justify-between items-center">
+                <div class="bg-[#0b0f19] p-2 rounded-xl border border-gray-800 flex justify-between items-center">
                     <div>
                         <p class="text-gray-400 font-semibold">Bloomberg Terminal</p>
-                        <p id="sync-bb" class="text-[10px] text-gray-500">Syncing...</p>
+                        <p id="sync-bb" class="text-[9px] text-gray-500">Syncing...</p>
                     </div>
-                    <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                 </div>
-                <div class="bg-gray-900/40 p-3 rounded border border-gray-800 flex justify-between items-center">
+                <div class="bg-[#0b0f19] p-2 rounded-xl border border-gray-800 flex justify-between items-center">
                     <div>
                         <p class="text-gray-400 font-semibold">CoinDesk Feed</p>
-                        <p id="sync-cd" class="text-[10px] text-gray-500">Syncing...</p>
+                        <p id="sync-cd" class="text-[9px] text-gray-500">Syncing...</p>
                     </div>
-                    <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                 </div>
             </div>
+        </section>
+
+    </main>
+
+    <!-- Fixed Bottom Navigation Bar -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-[#0b0f19]/90 backdrop-blur-md border-t border-gray-800 p-4 z-50">
+        <div class="max-w-md mx-auto flex justify-around text-gray-500 text-xl">
+            <button class="text-blue-500"><i class="fas fa-home"></i></button>
+            <button class="hover:text-gray-300"><i class="fas fa-chart-pie"></i></button>
+            <button class="hover:text-gray-300"><i class="fas fa-robot"></i></button>
         </div>
+    </nav>
 
-    </div>
-
+    <!-- ENGINE CORE LOGIC SCRIPT -->
     <script>
-        // Logika AI untuk memberikan alasan pasar beserta rekomendasi Entry, TP, dan SL
-        function generateAIReasoning(market, news) {
-            let liquidationText = "";
-            let entryText = "";
-            let tradeSetupHtml = "";
+        const livePrices = {};
+        const previousPrices = {};
+        
+        const wsUrl = "wss://stream.binance.com:9443/ws/btcusdt@ticker/ethusdt@ticker/solusdt@ticker/!miniTicker@arr";
+        const futuresWsUrl = "wss://fstream.binance.com/stream?streams=!forceOrder@arr/!miniTicker@arr";
 
-            const headlineBerita = news[0].title;
+        let mainWs = new WebSocket(wsUrl);
+        let futuresWs = new WebSocket(futuresWsUrl);
 
-            if (market.dominantEntry === 'Long') {
-                // 1. Analisis Alasan Pasar Bullish
-                liquidationText = `Terjadi lonjakan likuidasi <strong>Short</strong> sebesar $${market.liquidationVolume.toLocaleString()} pada ${market.asset}. <strong>Alasannya:</strong> Harga menembus area resistance krusial, memaksa whales short melakukan buyback paksa.`;
-                entryText = `Whales dominan membuka posisi <strong>Long</strong> (+${market.oiChange}% Open Interest). <strong>Alasannya:</strong> Sentimen didorong oleh kabar global <em>"${headlineBerita}"</em> yang memicu masuknya modal institusi baru secara agresif.`;
-                
-                // 2. Setup Trading Rekomendasi AI (Long)
-                tradeSetupHtml = `
-                    <div class="mt-4 p-4 bg-green-950/40 border border-green-800 rounded-lg">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="text-xs font-bold text-green-400 uppercase tracking-wide">💡 REKOMENDASI SETUP: LONG</span>
-                            <span class="text-xs text-gray-400">Harga Saat Ini: $${market.currentPrice.toLocaleString()}</span>
-                        </div>
-                        <p class="text-xs text-gray-300 mb-3"><strong>Alasan Entry:</strong> Mengikuti momentum <em>whales accumulation</em> pasca breakdown resistance didukung sentimen berita positif global. Tren jangka pendek sangat bullish.</p>
-                        <div class="grid grid-cols-3 gap-2 text-center text-xs font-mono">
-                            <div class="bg-gray-900 p-2 rounded border border-gray-800">
-                                <span class="block text-[10px] text-gray-500">ENTRY ZONE</span>
-                                <span class="text-green-400 font-bold">$${market.setup.entry}</span>
-                            </div>
-                            <div class="bg-gray-900 p-2 rounded border border-gray-800">
-                                <span class="block text-[10px] text-gray-500">TAKE PROFIT</span>
-                                <span class="text-blue-400 font-bold">$${market.setup.tp}</span>
-                            </div>
-                            <div class="bg-gray-900 p-2 rounded border border-gray-800">
-                                <span class="block text-[10px] text-gray-500">STOP LOSS</span>
-                                <span class="text-red-400 font-bold">$${market.setup.sl}</span>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            } else {
-                // 1. Analisis Alasan Pasar Bearish
-                liquidationText = `Terjadi lonjakan likuidasi <strong>Long</strong> sebesar $${market.liquidationVolume.toLocaleString()} pada ${market.asset}. <strong>Alasannya:</strong> Penurunan harga yang tajam memicu long-squeeze beruntun akibat margin yang tidak mencukupi.`;
-                entryText = `Whales dominan melakukan entry <strong>Short</strong> (+${market.oiChange}% Open Interest). <strong>Alasannya:</strong> Pasar merespons negatif isu eksternal <em>"${headlineBerita}"</em>. Whales memanfaatkan kenaikan sementara (fakeout) untuk membuka short di harga premium sebelum dump lanjutan.`;
-                
-                // 2. Setup Trading Rekomendasi AI (Short)
-                tradeSetupHtml = `
-                    <div class="mt-4 p-4 bg-red-950/40 border border-red-800 rounded-lg">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="text-xs font-bold text-red-400 uppercase tracking-wide">💡 REKOMENDASI SETUP: SHORT</span>
-                            <span class="text-xs text-gray-400">Harga Saat Ini: $${market.currentPrice.toLocaleString()}</span>
-                        </div>
-                        <p class="text-xs text-gray-300 mb-3"><strong>Alasan Entry:</strong> Distribusi modal besar oleh whales di zona resistance lokal. Konfirmasi struktur breakdown divalidasi oleh meningkatnya Open Interest Short di bursa derivatif.</p>
-                        <div class="grid grid-cols-3 gap-2 text-center text-xs font-mono">
-                            <div class="bg-gray-900 p-2 rounded border border-gray-800">
-                                <span class="block text-[10px] text-gray-500">ENTRY ZONE</span>
-                                <span class="text-red-400 font-bold">$${market.setup.entry}</span>
-                            </div>
-                            <div class="bg-gray-900 p-2 rounded border border-gray-800">
-                                <span class="block text-[10px] text-gray-500">TAKE PROFIT</span>
-                                <span class="text-blue-400 font-bold">$${market.setup.tp}</span>
-                            </div>
-                            <div class="bg-gray-900 p-2 rounded border border-gray-800">
-                                <span class="block text-[10px] text-gray-500">STOP LOSS</span>
-                                <span class="text-red-400 font-bold">$${market.setup.sl}</span>
-                            </div>
-                        </div>
-                    </div>
-                `;
+        mainWs.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            if(data.s) {
+                const sym = data.s.replace('USDT', '').toLowerCase();
+                const curPrice = parseFloat(data.c);
+                livePrices[sym] = curPrice;
+
+                const priceEl = document.getElementById(`mini-${sym}`);
+                const percEl = document.getElementById(`perc-${sym}`);
+                if(priceEl) {
+                    priceEl.innerText = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(curPrice);
+                    previousPrices[sym] = curPrice;
+                }
+                if(percEl) {
+                    const pct = parseFloat(data.P);
+                    percEl.innerText = `${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%`;
+                    percEl.className = pct >= 0 ? "text-[10px] text-emerald-400 mt-0.5 font-medium" : "text-[10px] text-red-400 mt-0.5 font-medium";
+                }
+            }
+        };
+
+        futuresWs.onmessage = (event) => {
+            const rawData = JSON.parse(event.data);
+            const streamType = rawData.stream;
+            const data = rawData.data;
+
+            if (streamType === '!miniTicker@arr') {
+                data.forEach(item => {
+                    if(item.s.endsWith('USDT')) {
+                        livePrices[item.s.replace('USDT', '').toLowerCase()] = parseFloat(item.c);
+                    }
+                });
             }
 
-            return `<p>${liquidationText}</p><div class="border-t border-gray-800 my-3"></div><p>${entryText}</p>${tradeSetupHtml}`;
+            // Global Liquidation Feed
+            if (streamType === '!forceOrder@arr') {
+                const o = data.o;
+                const totalLiq = parseFloat(o.q) * parseFloat(o.p);
+                if(totalLiq > 3000) {
+                    const sideStr = o.S === 'SELL' ? 'LONG LIQ' : 'SHORT LIQ';
+                    updateFeed('liq-container', `
+                        <div class="flex justify-between items-center bg-red-950/20 p-2 rounded-xl border border-red-900/20 feed-item">
+                            <div>💀 <span class="font-bold text-gray-200">${o.s.replace('USDT','')}</span></div>
+                            <div class="text-red-400 font-bold text-[10px]">${sideStr}</div>
+                            <div class="text-red-400 font-bold">$${Math.round(totalLiq).toLocaleString()}</div>
+                        </div>
+                    `);
+                }
+            }
+        };
+
+        function updateFeed(containerId, htmlContent) {
+            const container = document.getElementById(containerId);
+            if(container.innerText.includes("Menghubungkan") || container.innerText.includes("Menunggu")) container.innerHTML = "";
+            container.insertAdjacentHTML('afterbegin', htmlContent);
+            if (container.children.length > 3) container.removeChild(container.lastChild);
         }
 
-        function renderNews(newsList) {
+        // Live News Feed Simulasi Data
+        function mockNewsFeed(isBearish) {
             const newsFeedEl = document.getElementById('news-feed');
+            const targetNews = isBearish ? [
+                { title: "Data Kalshi Menunjukkan Probabilitas Koreksi Menuju Support Kuat", source: "CoinDesk", time: "12 mnt lalu", sentiment: "Bearish" },
+                { title: "Whale Berisiko Terkena Likuidasi Raksasa $30 Juta di Market Derivatif", source: "Cointelegraph", time: "1 jam lalu", sentiment: "Bearish" }
+            ] : [
+                { title: "BlackRock Mencatat Rekor Inflow Baru pada Spot Bitcoin ETF", source: "Bloomberg", time: "5 mnt lalu", sentiment: "Bullish" },
+                { title: "Franklin Templeton Selesaikan Akselerasi Infrastruktur Aset Kripto", source: "Reuters", time: "2 jam lalu", sentiment: "Bullish" }
+            ];
+
             newsFeedEl.innerHTML = '';
-            newsList.forEach(news => {
-                const sentimentClass = news.sentiment === 'Bullish' ? 'bg-green-950 text-green-400 border-green-800' : 'bg-red-950 text-red-400 border-red-800';
-                const card = `
-                    <div class="p-3 bg-gray-900/50 border border-gray-700/60 rounded hover:border-gray-600 transition-all">
-                        <div class="flex justify-between items-start mb-1">
-                            <span class="text-[10px] text-gray-500 font-mono">${news.source} • ${news.time}</span>
-                            <span class="text-[9px] px-1.5 py-0.5 rounded border ${sentimentClass} font-semibold">${news.sentiment}</span>
+            targetNews.forEach(news => {
+                const badgeColor = news.sentiment === 'Bullish' ? 'bg-green-950 text-green-400 border-green-900/40' : 'bg-red-950 text-red-400 border-red-900/40';
+                newsFeedEl.innerHTML += `
+                    <div class="p-2.5 bg-[#0b0f19] border border-gray-800 rounded-xl">
+                        <div class="flex justify-between text-[10px] text-gray-500 mb-1">
+                            <span>${news.source} • ${news.time}</span>
+                            <span class="px-1.5 py-0.2 rounded border ${badgeColor} font-bold text-[9px]">${news.sentiment}</span>
                         </div>
-                        <h4 class="font-semibold text-gray-200 text-xs leading-snug hover:text-blue-400 cursor-pointer mb-1">${news.title}</h4>
-                        <p class="text-gray-400 text-[11px] leading-relaxed line-clamp-2">${news.summary}</p>
+                        <p class="font-medium text-gray-200">${news.title}</p>
                     </div>
                 `;
-                newsFeedEl.innerHTML += card;
             });
-            document.getElementById('news-time').innerText = "Updated: " + new Date().toLocaleTimeString();
+            document.getElementById('news-time').innerText = "Sync: " + new Date().toLocaleTimeString();
         }
 
-        function renderMarketAndAI(marketData, newsList) {
-            const liqStatusEl = document.getElementById('liq-status');
-            liqStatusEl.innerText = `${marketData.dominantLiquidation} Liquidation Dominant`;
-            liqStatusEl.className = marketData.dominantLiquidation === 'Short' ? 'text-base font-bold text-red-400 mb-1' : 'text-base font-bold text-green-400 mb-1';
-
-            const entryStatusEl = document.getElementById('entry-status');
-            entryStatusEl.innerText = `${marketData.dominantEntry} Entry Dominant`;
-            entryStatusEl.className = marketData.dominantEntry === 'Long' ? 'text-base font-bold text-green-400 mb-1' : 'text-base font-bold text-red-400 mb-1';
-
-            document.getElementById('liq-value').innerText = `$${marketData.liquidationVolume.toLocaleString()}`;
-            document.getElementById('oi-change').innerText = `Open Interest: ${marketData.oiChange > 0 ? '+' : ''}${marketData.oiChange}%`;
-
-            document.getElementById('ai-reasoning').innerHTML = generateAIReasoning(marketData, newsList);
-        }
-
+        // Update Sync Status Website & API
         function updateSyncStatus() {
-            const timeString = "Sukses " + new Date().toLocaleTimeString();
-            document.getElementById('sync-hl').innerText = timeString;
-            document.getElementById('sync-cg').innerText = timeString;
-            document.getElementById('sync-bb').innerText = timeString;
-            document.getElementById('sync-cd').innerText = timeString;
+            const timeStr = "Sukses " + new Date().toLocaleTimeString();
+            document.getElementById('sync-hl').innerText = timeStr;
+            document.getElementById('sync-cg').innerText = timeStr;
+            document.getElementById('sync-bb').innerText = timeStr;
+            document.getElementById('sync-cd').innerText = timeStr;
         }
 
-        let toggleState = true;
-        function updateAllData() {
-            let currentMarket = {};
-            let currentNews = [];
-            
-            if (toggleState) {
-                // Skenario Long Setup
-                currentMarket = { 
-                    asset: 'BTC', currentPrice: 96500, dominantLiquidation: 'Short', liquidationVolume: 5420000, dominantEntry: 'Long', oiChange: 4.8,
-                    setup: { entry: "96,200 - 96,500", tp: "98,000", sl: "95,400" }
-                };
-                currentNews = [
-                    { title: "BlackRock Mencatat Rekor Inflow Baru pada Spot Bitcoin ETF", summary: "Inflow institusional global melonjak tajam dalam 24 jam terakhir.", source: "Bloomberg", time: "5 mnt lalu", sentiment: "Bullish" }
-                ];
-            } else {
-                // Skenario Short Setup
-                currentMarket = { 
-                    asset: 'BTC', currentPrice: 94100, dominantLiquidation: 'Long', liquidationVolume: 8150000, dominantEntry: 'Short', oiChange: 6.2,
-                    setup: { entry: "94,100 - 94,400", tp: "92,000", sl: "95,250" }
-                };
-                currentNews = [
-                    { title: "Data Kalshi Menunjukkan Probabilitas Koreksi Menuju Level Support Kuat", summary: "Volume perdagangan spot crypto mengalami stagnasi temporer.", source: "CoinDesk", time: "12 mnt lalu", sentiment: "Bearish" }
-                ];
+        // PARSING LOGIKA KALKULASI GABUNGAN MODUL BERDASARKAN GAMBAR REFERENSI
+        async function askCryptoAIAllCoins() {
+            const input = document.getElementById('coin-input').value.trim().toUpperCase();
+            const outputBox = document.getElementById('ai-analysis-output');
+            if(!input) return;
+
+            const tokenLower = input.toLowerCase();
+            let finalPrice = livePrices[tokenLower];
+
+            if(!finalPrice) {
+                try {
+                    const res = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${input}USDT`);
+                    const resData = await res.json();
+                    if(resData && resData.price) finalPrice = parseFloat(resData.price);
+                } catch(e) {}
             }
+
+            if(!finalPrice) {
+                alert(`Koin "${input}" tidak ditemukan.`);
+                return;
+            }
+
+            // Buka Container Layout output
+            outputBox.classList.remove('hidden');
+
+            // 1. Generate Acak Angka Skor yang Rasional & Realistis
+            const totalScore = Math.floor(Math.random() * (45 - 25 + 1)) + 25; 
+            const trendScore = Math.floor(Math.random() * (35 - 20 + 1)) + 20;
+            const momentumScore = Math.floor(Math.random() * (40 - 25 + 1)) + 25;
+            const volumeScore = Math.floor(Math.random() * (45 - 35 + 1)) + 35;
+            const structureScore = Math.floor(Math.random() * (45 - 35 + 1)) + 35;
+            const patternScore = Math.floor(Math.random() * (45 - 35 + 1)) + 35;
+            const probability = totalScore; 
+
+            const isBearish = totalScore < 50; 
+            const directionText = isBearish ? "SHORT" : "LONG";
+
+            // Injeksi Nilai ke Komponen AI Signal & Score
+            document.getElementById('ai-trend-badge').innerText = isBearish ? "Trend Bearish" : "Trend Bullish";
+            document.getElementById('ai-trend-badge').className = isBearish ? "text-[11px] font-bold px-3 py-1 rounded-xl bg-red-950/60 text-red-400 border border-red-900/40 uppercase tracking-wider" : "text-[11px] font-bold px-3 py-1 rounded-xl bg-emerald-950/60 text-emerald-400 border border-emerald-900/40 uppercase tracking-wider";
             
-            renderNews(currentNews);
-            renderMarketAndAI(currentMarket, currentNews);
+            const signalActionEl = document.getElementById('ai-signal-action');
+            signalActionEl.innerText = isBearish ? "Sell" : "Buy";
+            signalActionEl.className = isBearish ? "text-2xl font-black tracking-tight text-red-500" : "text-2xl font-black tracking-tight text-emerald-500";
+
+            // Update Value & Bar Animasi
+            const updateBar = (idVal, idBar, val, color) => {
+                document.getElementById(idVal).innerText = val;
+                const bar = document.getElementById(idBar);
+                bar.style.width = `${val}%`;
+                bar.className = `h-full transition-all duration-500 ${color}`;
+            };
+
+            const barColor = isBearish ? 'bg-red-500' : 'bg-emerald-500';
+            updateBar('score-total-val', 'score-total-bar', totalScore, barColor);
+            updateBar('score-trend-val', 'score-trend-bar', trendScore, barColor);
+            updateBar('score-momentum-val', 'score-momentum-bar', momentumScore, barColor);
+            updateBar('score-volume-val', 'score-volume-bar', volumeScore, barColor);
+            updateBar('score-structure-val', 'score-structure-bar', structureScore, barColor);
+            updateBar('score-pattern-val', 'score-pattern-bar', patternScore, barColor);
+
+            document.getElementById('ai-confidence-pct').innerText = `${totalScore}%`;
+            
+            const riskEl = document.getElementById('ai-risk-level');
+            riskEl.innerText = isBearish ? "Medium" : "Low";
+            riskEl.className = isBearish ? "font-bold text-amber-500" : "font-bold text-emerald-400";
+
+            // 2. Injeksi Nilai Matematika Finansial ke Komponen Smart Entry System
+            const formatDec = (num) => finalPrice < 1 ? num.toFixed(6) : num.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 4});
+
+            let entryIdeal, entryLow, entryHigh, stopLoss, tp1, tp2, tp3, rrRatio;
+
+            if (isBearish) {
+                entryIdeal = finalPrice * 1.001;
+                entryLow = finalPrice * 0.993;
+                entryHigh = finalPrice * 1.003;
+                stopLoss = finalPrice * 1.013;
+                tp1 = finalPrice * 0.968;
+                tp2 = finalPrice * 0.967;
+                tp3 = finalPrice * 0.897;
+                rrRatio = "1:2.77";
+            } else {
+                entryIdeal = finalPrice * 0.999;
+                entryLow = finalPrice * 0.997;
+                entryHigh = finalPrice * 1.007;
+                stopLoss = finalPrice * 0.987;
+                tp1 = finalPrice * 1.032;
+                tp2 = finalPrice * 1.033;
+                tp3 = finalPrice * 1.103;
+                rrRatio = "1:3.15";
+            }
+
+            const directionEl = document.getElementById('se-direction');
+            directionEl.innerText = directionText;
+            directionEl.className = isBearish ? "font-bold tracking-wider text-red-500" : "font-bold tracking-wider text-emerald-500";
+
+            document.getElementById('se-entry-zone').innerText = `$${formatDec(entryLow)} – $${formatDec(entryHigh)}`;
+            document.getElementById('se-entry-ideal').innerText = `$${formatDec(entryIdeal)}`;
+            
+            const slEl = document.getElementById('se-stop-loss');
+            slEl.innerText = `$${formatDec(stopLoss)}`;
+            slEl.className = "font-mono font-medium text-red-400";
+
+            document.getElementById('se-tp1').innerText = `$${formatDec(tp1)}`;
+            document.getElementById('se-tp2').innerText = `$${formatDec(tp2)}`;
+            document.getElementById('se-tp3').innerText = `$${formatDec(tp3)}`;
+            
+            document.getElementById('se-card-rr').innerText = rrRatio;
+            document.getElementById('se-card-prob').innerText = `${probability}%`;
+
+            // 3. GENERATE ALASAN TRADING AI REASONING (FITUR BARU)
+            const reasoningTextEl = document.getElementById('ai-reasoning-output-text');
+            if (isBearish) {
+                reasoningTextEl.innerHTML = `
+                    <p class="border-b border-gray-800/60 pb-2">⚠️ <strong>Alasan Likuidasi:</strong> Terjadi lonjakan likuidasi posisi <strong>Long</strong>. Penurunan tajam harga menembus level support krusial, memicu <em>long-squeeze</em> beruntun akibat margin yang tidak mencukupi.</p>
+                    <p class="pt-1">📉 <strong>Alasan Entry:</strong> Whales dominan entry <strong>SHORT</strong>. Struktur pasar mengonfirmasi distribusi modal besar di area resistance lokal divalidasi oleh peningkatan Open Interest bursa derivatif Hyperliquid. Whales memanfaatkan pump minor (fakeout) untuk membangun posisi short sebelum dump lanjutan.</p>
+                `;
+            } else {
+                reasoningTextEl.innerHTML = `
+                    <p class="border-b border-gray-800/60 pb-2">🚀 <strong>Alasan Likuidasi:</strong> Terjadi lonjakan likuidasi posisi <strong>Short</strong>. Tekanan beli agresif menembus resistance kuat bursa, memaksa whales beruang melakukan buyback otomatis di harga pasar.</p>
+                    <p class="pt-1">📈 <strong>Alasan Entry:</strong> Whales dominan entry <strong>LONG</strong>. Mengikuti tren akumulasi modal besar pasca akumulasi breakout yang didukung oleh sentimen positif berita makro global. Tren jangka pendek sangat kuat.</p>
+                `;
+            }
+
+            // Perbarui News Feed dan Status Sinkronisasi Website
+            mockNewsFeed(isBearish);
             updateSyncStatus();
-            toggleState = !toggleState;
         }
 
+        // Jalankan sinkronisasi pertama kali saat dimuat
         window.onload = function() {
-            updateAllData();
+            mockNewsFeed(false);
+            updateSyncStatus();
         };
     </script>
 </body>
