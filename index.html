@@ -1,568 +1,765 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CryptoVision AI - Advanced Terminal</title>
-    <!-- Tailwind CSS v3 Play CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        darkBg: '#0b0f19',
-                        cardBg: '#111827',
-                        borderBg: '#1f2937'
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        body { background-color: #0b0f19; color: #f3f4f6; }
-        .gradient-text {
-            background: linear-gradient(to right, #3b82f6, #a855f7);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .btn-gradient { background: linear-gradient(to right, #3b82f6, #a855f7); }
-        .price-up { color: #34d399 !important; transition: color 0.2s; }
-        .price-down { color: #f87171 !important; transition: color 0.2s; }
-        @keyframes flash {
-            0% { background-color: rgba(31, 41, 55, 1); }
-            50% { background-color: rgba(59, 130, 246, 0.2); }
-            100% { background-color: rgba(17, 24, 39, 1); }
-        }
-        .feed-item { animation: flash 0.8s ease-out; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulasi TPA &amp; TKDA — Calon Mahasiswa Baru FK UMI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;0,700;1,500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F7F2E4;
+    --paper-2:#EFE7D2;
+    --ink:#1F2A22;
+    --ink-soft:#5B6358;
+    --green-deep:#0B4A39;
+    --green:#136B4F;
+    --green-soft:#E2EEE5;
+    --gold:#C18E1B;
+    --gold-soft:#FBEFCE;
+    --ok:#1E8754;
+    --ok-soft:#E5F4EB;
+    --bad:#C0392B;
+    --bad-soft:#FBE7E4;
+    --line:#D8CFB6;
+    --shadow: 0 10px 30px -12px rgba(11,74,57,0.25);
+    --radius: 14px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    font-family:'Plus Jakarta Sans', sans-serif;
+    background:
+      radial-gradient(circle at 100% 0%, rgba(193,142,27,0.10), transparent 45%),
+      radial-gradient(circle at 0% 100%, rgba(19,107,79,0.10), transparent 45%),
+      var(--paper);
+    color:var(--ink);
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{font-family:'Lora', serif; margin:0; letter-spacing:-0.01em;}
+  .mono{font-family:'JetBrains Mono', monospace;}
+  a{color:inherit;}
+  ::selection{background:var(--gold-soft);}
+
+  button{font-family:inherit; cursor:pointer; border:none;}
+  button:focus-visible, [tabindex]:focus-visible, input:focus-visible{
+    outline:3px solid var(--gold); outline-offset:2px;
+  }
+
+  .wrap{max-width:880px; margin:0 auto; padding:0 20px;}
+
+  /* ============ TOP BAR (exam header, always visible once started) ============ */
+  .examhead{
+    position:sticky; top:0; z-index:30;
+    background:rgba(247,242,228,0.92);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+  }
+  .examhead-inner{
+    max-width:880px; margin:0 auto; padding:12px 20px;
+    display:flex; align-items:center; justify-content:space-between; gap:14px;
+  }
+  .brand{display:flex; align-items:center; gap:10px;}
+  .brand-mark{
+    width:34px; height:34px; border-radius:9px;
+    background:var(--green-deep); color:var(--gold-soft);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Lora',serif; font-weight:700; font-size:14px;
+    flex-shrink:0;
+  }
+  .brand-text{line-height:1.15;}
+  .brand-text .t1{font-size:11px; letter-spacing:.10em; text-transform:uppercase; color:var(--ink-soft); font-weight:600;}
+  .brand-text .t2{font-size:14.5px; font-weight:700; color:var(--green-deep);}
+  .timer{
+    display:flex; align-items:center; gap:8px;
+    background:var(--green-deep); color:#fff;
+    padding:7px 14px; border-radius:999px;
+    font-size:14.5px; font-weight:600;
+  }
+  .timer.warn{background:var(--bad);}
+  .timer .dot{width:7px;height:7px;border-radius:50%;background:#7CE7B4; animation:pulse 1.6s infinite;}
+  .timer.warn .dot{background:#FFD6CF;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.35;}}
+
+  /* ============ LANDING SCREEN ============ */
+  .screen{display:none;}
+  .screen.active{display:block;}
+
+  .landing{padding:54px 0 70px;}
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    background:var(--gold-soft); color:#7A5A0E;
+    border:1px solid #E4CD8E;
+    padding:6px 13px; border-radius:999px;
+    font-size:12.5px; font-weight:700; letter-spacing:.04em; text-transform:uppercase;
+    margin-bottom:22px;
+  }
+  .landing h1{font-size:clamp(30px,5vw,46px); color:var(--green-deep); line-height:1.12; max-width:640px;}
+  .landing .sub{font-size:17px; color:var(--ink-soft); max-width:560px; margin-top:16px; line-height:1.6;}
+
+  .ljk-preview{
+    margin-top:36px;
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:22px 24px;
+    position:relative;
+    overflow:hidden;
+  }
+  .ljk-preview::before{
+    content:"LEMBAR JAWABAN KOMPUTER — SIMULASI";
+    position:absolute; top:14px; right:-58px;
+    background:var(--green-deep); color:var(--gold-soft);
+    font-size:10.5px; font-weight:700; letter-spacing:.08em;
+    padding:5px 70px; transform:rotate(35deg);
+  }
+  .bubble-row{display:flex; align-items:center; gap:10px; margin:9px 0;}
+  .bubble-row .num{width:22px; font-family:'JetBrains Mono'; font-size:12px; color:var(--ink-soft);}
+  .bubble{
+    width:22px; height:22px; border-radius:50%; border:1.6px solid #B9AF92;
+    display:flex; align-items:center; justify-content:center;
+    font-size:10.5px; color:#8a8268; font-weight:700;
+  }
+  .bubble.filled{background:var(--green-deep); border-color:var(--green-deep); color:var(--gold-soft);}
+
+  .info-grid{
+    margin-top:30px;
+    display:grid; grid-template-columns:repeat(4,1fr); gap:1px;
+    background:var(--line); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden;
+  }
+  .info-cell{background:var(--paper); padding:18px 16px;}
+  .info-cell .n{font-family:'JetBrains Mono'; font-size:22px; font-weight:700; color:var(--green-deep);}
+  .info-cell .l{font-size:12px; color:var(--ink-soft); margin-top:4px;}
+
+  .rules{margin-top:30px; background:var(--green-soft); border:1px solid #CBE0D2; border-radius:var(--radius); padding:20px 22px;}
+  .rules h3{font-size:15px; color:var(--green-deep); margin-bottom:10px;}
+  .rules ul{margin:0; padding-left:20px; font-size:14.5px; color:#34453B; line-height:1.75;}
+
+  .start-btn{
+    margin-top:34px;
+    background:var(--green-deep); color:#fff;
+    padding:15px 30px; border-radius:11px;
+    font-size:16px; font-weight:700;
+    display:inline-flex; align-items:center; gap:10px;
+    box-shadow:0 10px 24px -10px rgba(11,74,57,.55);
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .start-btn:hover{transform:translateY(-2px); box-shadow:0 14px 28px -10px rgba(11,74,57,.6);}
+  .start-btn svg{width:17px;height:17px;}
+
+  /* ============ EXAM SCREEN ============ */
+  .exam{padding:26px 0 130px;}
+  .progress-track{
+    height:6px; border-radius:99px; background:var(--paper-2); overflow:hidden; margin-bottom:18px;
+    border:1px solid var(--line);
+  }
+  .progress-fill{height:100%; background:linear-gradient(90deg,var(--green),var(--gold)); width:0%; transition:width .35s ease;}
+  .progress-meta{display:flex; justify-content:space-between; font-size:12.5px; color:var(--ink-soft); margin-bottom:22px;}
+  .progress-meta b{color:var(--green-deep);}
+
+  .qcard{
+    background:#fff; border:1px solid var(--line); border-radius:var(--radius);
+    box-shadow:var(--shadow); padding:30px 28px 26px;
+    animation:fadein .25s ease;
+  }
+  @keyframes fadein{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+  .qcard-top{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:16px;}
+  .qnum{
+    font-family:'JetBrains Mono'; font-weight:700; font-size:13px;
+    color:var(--green-deep); background:var(--green-soft);
+    padding:5px 11px; border-radius:7px;
+  }
+  .qcat{font-size:12px; font-weight:700; color:var(--gold); text-transform:uppercase; letter-spacing:.06em;}
+  .qtext{font-size:18.5px; line-height:1.55; color:var(--ink); margin-bottom:24px; font-weight:500;}
+
+  .options{display:flex; flex-direction:column; gap:10px;}
+  .opt{
+    display:flex; align-items:flex-start; gap:14px;
+    border:1.6px solid var(--line); border-radius:11px; padding:13px 16px;
+    transition:border-color .15s ease, background .15s ease;
+    background:#FEFCF7;
+  }
+  .opt:hover{border-color:var(--green); background:var(--green-soft);}
+  .opt.selected{border-color:var(--green-deep); background:var(--green-soft);}
+  .opt .letter{
+    flex-shrink:0; width:30px; height:30px; border-radius:50%;
+    border:1.8px solid #B9AF92; color:#7c7458;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'JetBrains Mono'; font-weight:700; font-size:13px;
+    transition:all .15s ease;
+  }
+  .opt.selected .letter{background:var(--green-deep); border-color:var(--green-deep); color:var(--gold-soft);}
+  .opt .otext{font-size:15px; line-height:1.5; padding-top:4px;}
+
+  .qnav{display:flex; align-items:center; justify-content:space-between; margin-top:26px; gap:10px;}
+  .btn{
+    padding:11px 18px; border-radius:9px; font-weight:700; font-size:14px;
+    display:inline-flex; align-items:center; gap:8px;
+  }
+  .btn-ghost{background:transparent; color:var(--green-deep); border:1.6px solid var(--line);}
+  .btn-ghost:hover{border-color:var(--green-deep);}
+  .btn-ghost:disabled{opacity:.35; cursor:not-allowed;}
+  .btn-primary{background:var(--green-deep); color:#fff;}
+  .btn-primary:hover{background:var(--green);}
+  .btn-finish{background:var(--gold); color:#3E2C04;}
+  .btn-finish:hover{background:#B07F14;}
+
+  /* bottom sheet grid (LJK) */
+  .gridbar{
+    position:fixed; left:0; right:0; bottom:0; z-index:25;
+    background:rgba(247,242,228,0.96); backdrop-filter:blur(8px);
+    border-top:1px solid var(--line);
+    padding:10px 0;
+  }
+  .gridbar-inner{max-width:880px; margin:0 auto; padding:0 20px;}
+  .gridbar-toggle{
+    display:flex; align-items:center; justify-content:space-between;
+    font-size:12.5px; font-weight:700; color:var(--green-deep); cursor:pointer;
+    padding:4px 0;
+  }
+  .gridbar-toggle .chev{transition:transform .2s ease;}
+  .gridbar.open .chev{transform:rotate(180deg);}
+  .numgrid{
+    display:none; grid-template-columns:repeat(10,1fr); gap:6px; margin-top:10px; max-height:160px; overflow-y:auto; padding-right:2px;
+  }
+  .gridbar.open .numgrid{display:grid;}
+  .numgrid button{
+    aspect-ratio:1; border-radius:7px; border:1.4px solid var(--line);
+    background:#fff; font-family:'JetBrains Mono'; font-size:11.5px; font-weight:700; color:var(--ink-soft);
+  }
+  .numgrid button.answered{background:var(--green-soft); border-color:#9FCBAB; color:var(--green-deep);}
+  .numgrid button.current{background:var(--green-deep); border-color:var(--green-deep); color:#fff;}
+
+  /* ============ RESULT SCREEN ============ */
+  .result{padding:46px 0 80px;}
+  .result-hero{
+    background:var(--green-deep); color:#fff; border-radius:18px;
+    padding:36px 32px; position:relative; overflow:hidden;
+    box-shadow:var(--shadow);
+  }
+  .result-hero::after{
+    content:""; position:absolute; right:-60px; top:-60px; width:220px; height:220px;
+    border-radius:50%; background:rgba(193,142,27,0.20);
+  }
+  .result-hero .label{font-size:12.5px; letter-spacing:.08em; text-transform:uppercase; color:#BFE3CF; font-weight:700;}
+  .result-score{display:flex; align-items:baseline; gap:12px; margin-top:10px;}
+  .result-score .big{font-family:'JetBrains Mono'; font-size:58px; font-weight:700;}
+  .result-score .of{font-size:18px; color:#BFE3CF;}
+  .result-msg{margin-top:10px; font-size:15.5px; color:#E7F2EA; max-width:480px; line-height:1.55;}
+  .result-stats{display:flex; gap:26px; margin-top:22px; flex-wrap:wrap;}
+  .result-stat .n{font-family:'JetBrains Mono'; font-size:21px; font-weight:700;}
+  .result-stat .l{font-size:12px; color:#BFE3CF; margin-top:2px;}
+
+  .cat-breakdown{margin-top:30px;}
+  .cat-breakdown h3{font-size:15px; color:var(--green-deep); margin-bottom:14px;}
+  .cat-row{display:grid; grid-template-columns:170px 1fr 60px; align-items:center; gap:12px; margin-bottom:11px;}
+  .cat-row .cname{font-size:13px; font-weight:600; color:var(--ink);}
+  .cat-bar-track{height:9px; background:var(--paper-2); border-radius:99px; overflow:hidden; border:1px solid var(--line);}
+  .cat-bar-fill{height:100%; background:linear-gradient(90deg,var(--green),var(--gold));}
+  .cat-row .cval{font-family:'JetBrains Mono'; font-size:12.5px; text-align:right; color:var(--ink-soft);}
+
+  .review-head{display:flex; align-items:center; justify-content:space-between; margin-top:44px; margin-bottom:16px; flex-wrap:wrap; gap:10px;}
+  .review-head h3{font-size:18px; color:var(--green-deep);}
+  .filter-tabs{display:flex; gap:6px; background:var(--paper-2); padding:4px; border-radius:10px; border:1px solid var(--line);}
+  .filter-tabs button{padding:7px 13px; border-radius:7px; font-size:12.5px; font-weight:700; background:transparent; color:var(--ink-soft);}
+  .filter-tabs button.active{background:#fff; color:var(--green-deep); box-shadow:0 2px 6px rgba(0,0,0,.08);}
+
+  .review-item{
+    border:1px solid var(--line); border-radius:13px; padding:18px 20px; margin-bottom:12px; background:#fff;
+  }
+  .review-item.correct{border-left:4px solid var(--ok);}
+  .review-item.wrong{border-left:4px solid var(--bad);}
+  .ri-top{display:flex; align-items:center; gap:10px; margin-bottom:9px; flex-wrap:wrap;}
+  .ri-num{font-family:'JetBrains Mono'; font-size:12px; font-weight:700; color:var(--ink-soft);}
+  .ri-cat{font-size:11px; font-weight:700; color:var(--gold); text-transform:uppercase; letter-spacing:.05em;}
+  .ri-badge{
+    margin-left:auto; font-size:11px; font-weight:700; padding:3px 10px; border-radius:999px;
+  }
+  .ri-badge.ok{background:var(--ok-soft); color:var(--ok);}
+  .ri-badge.bad{background:var(--bad-soft); color:var(--bad);}
+  .ri-q{font-size:15px; font-weight:600; line-height:1.5; margin-bottom:12px;}
+  .ri-ans{font-size:13.5px; line-height:1.6; margin-bottom:4px;}
+  .ri-ans b{font-weight:700;}
+  .ri-ans .your{color:var(--bad);}
+  .ri-ans .correct{color:var(--ok);}
+  .ri-explain{
+    margin-top:11px; background:var(--gold-soft); border:1px solid #E4CD8E; border-radius:10px;
+    padding:12px 14px; font-size:13.5px; line-height:1.6; color:#5A4108;
+  }
+  .ri-explain b{color:#3E2C04;}
+
+  .restart-bar{display:flex; justify-content:center; margin-top:40px;}
+
+  footer{
+    text-align:center; padding:26px 20px 40px; font-size:12px; color:var(--ink-soft);
+  }
+
+  @media (max-width:560px){
+    .info-grid{grid-template-columns:repeat(2,1fr);}
+    .qtext{font-size:17px;}
+    .result-score .big{font-size:44px;}
+    .cat-row{grid-template-columns:110px 1fr 46px;}
+    .numgrid{grid-template-columns:repeat(7,1fr);}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;}
+  }
+</style>
 </head>
-<body class="font-sans min-h-screen pb-24 bg-[#0b0f19]">
+<body>
 
-    <!-- Top Header Navigation -->
-    <header class="sticky top-0 z-50 bg-[#0b0f19]/80 backdrop-blur-md p-4 border-b border-gray-800">
-        <div class="max-w-md mx-auto flex items-center justify-between">
-            <div class="w-full flex items-center justify-between">
-                <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center font-bold text-sm text-white shadow-lg">CV</div>
-                    <span class="font-bold text-sm tracking-wide">CryptoVision <span class="text-xs bg-purple-950 text-purple-400 px-2 py-0.5 rounded ml-1 border border-purple-900/40">PRO v2.0</span></span>
-                </div>
-                <div class="text-[11px] text-gray-500 flex items-center gap-1">
-                    <span id="ws-status-dot" class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> 
-                    <span id="ws-status-text">Live Streams</span>
-                </div>
-            </div>
+<!-- ============ STICKY HEADER (shown on exam screen) ============ -->
+<div class="examhead" id="examHead" style="display:none;">
+  <div class="examhead-inner">
+    <div class="brand">
+      <div class="brand-mark">FK</div>
+      <div class="brand-text">
+        <div class="t1">Simulasi Ujian Seleksi</div>
+        <div class="t2">TPA &amp; TKDA — FK UMI</div>
+      </div>
+    </div>
+    <div class="timer" id="timer"><span class="dot"></span><span id="timerText">90:00</span></div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- ============ LANDING ============ -->
+  <section class="screen active" id="screen-landing">
+    <div class="landing">
+      <span class="eyebrow">Tahap 3 · Seleksi TKD &amp; TPA · TA. 2026/2027</span>
+      <h1>Simulasi Tes Potensi Akademik &amp; Tes Kemampuan Dasar Akademik</h1>
+      <p class="sub">Latihan 50 soal bergaya Lembar Jawaban Komputer (LJK), untuk membantu calon mahasiswa baru Fakultas Kedokteran Universitas Muslim Indonesia mempersiapkan diri sebelum ujian seleksi sesungguhnya.</p>
+
+      <div class="ljk-preview">
+        <div class="bubble-row"><span class="num">01</span><span class="bubble filled">A</span><span class="bubble">B</span><span class="bubble">C</span><span class="bubble">D</span><span class="bubble">E</span></div>
+        <div class="bubble-row"><span class="num">02</span><span class="bubble">A</span><span class="bubble">B</span><span class="bubble filled">C</span><span class="bubble">D</span><span class="bubble">E</span></div>
+        <div class="bubble-row"><span class="num">03</span><span class="bubble">A</span><span class="bubble">B</span><span class="bubble">C</span><span class="bubble filled">D</span><span class="bubble">E</span></div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info-cell"><div class="n">50</div><div class="l">Total soal</div></div>
+        <div class="info-cell"><div class="n">90<span style="font-size:13px;">mnt</span></div><div class="l">Waktu pengerjaan</div></div>
+        <div class="info-cell"><div class="n">7</div><div class="l">Kategori soal</div></div>
+        <div class="info-cell"><div class="n">5</div><div class="l">Pilihan jawaban</div></div>
+      </div>
+
+      <div class="rules">
+        <h3>Petunjuk pengerjaan</h3>
+        <ul>
+          <li>Setiap soal memiliki 5 pilihan jawaban (A–E), pilih satu jawaban yang paling tepat.</li>
+          <li>Gunakan nomor di bagian bawah layar untuk berpindah ke soal mana pun secara bebas.</li>
+          <li>Jawaban tersimpan otomatis, kamu boleh mengubah pilihan kapan saja sebelum ujian selesai.</li>
+          <li>Setelah seluruh soal selesai dijawab dan ujian diakhiri, skor dan pembahasan akan langsung ditampilkan — pembahasan hanya muncul untuk soal yang jawabannya keliru.</li>
+          <li>Waktu pengerjaan 90 menit; ujian otomatis berakhir bila waktu habis.</li>
+        </ul>
+      </div>
+
+      <button class="start-btn" id="startBtn">
+        Mulai Simulasi Ujian
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
+    </div>
+  </section>
+
+  <!-- ============ EXAM ============ -->
+  <section class="screen" id="screen-exam">
+    <div class="exam">
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="progress-meta">
+        <span>Terjawab: <b id="answeredCount">0</b> / 50</span>
+        <span id="qPosition">Soal <b>1</b> dari 50</span>
+      </div>
+
+      <div class="qcard" id="qcard">
+        <div class="qcard-top">
+          <span class="qnum" id="qnumTag">NO. 01</span>
+          <span class="qcat" id="qcatTag">ANALOGI VERBAL</span>
         </div>
-    </header>
+        <div class="qtext" id="qtext">Memuat soal…</div>
+        <div class="options" id="options"></div>
 
-    <!-- Main Content Area -->
-    <main class="max-w-md mx-auto px-4 mt-4 space-y-4 text-center">
-        
-        <!-- FITUR BARU: GLOBAL MACRO METRICS -->
-        <div class="grid grid-cols-4 gap-2 text-center text-xs">
-            <div class="bg-[#111827] border border-gray-800 p-2 rounded-xl flex flex-col justify-center">
-                <div class="text-[9px] text-gray-500 uppercase font-semibold">Global MCap</div>
-                <div id="macro-mcap" class="font-bold text-blue-400 text-xs mt-0.5">$2.45T</div>
-            </div>
-            <div class="bg-[#111827] border border-gray-800 p-2 rounded-xl flex flex-col justify-center">
-                <div class="text-[9px] text-gray-500 uppercase font-semibold">BTC Dom</div>
-                <div id="macro-btcdom" class="font-bold text-orange-400 text-xs mt-0.5">53.4%</div>
-            </div>
-            <div class="bg-[#111827] border border-gray-800 p-2 rounded-xl flex flex-col justify-center">
-                <div class="text-[9px] text-gray-500 uppercase font-semibold">F&G Index</div>
-                <div id="macro-fgi" class="font-bold text-emerald-400 text-xs mt-0.5">72 (Greed)</div>
-            </div>
-            <div class="bg-[#111827] border border-gray-800 p-2 rounded-xl flex flex-col justify-center">
-                <div class="text-[9px] text-gray-500 uppercase font-semibold">USDT/IDR</div>
-                <div id="macro-usdt" class="font-bold text-white text-xs mt-0.5">Loading..</div>
-            </div>
+        <div class="qnav">
+          <button class="btn btn-ghost" id="prevBtn">← Sebelumnya</button>
+          <button class="btn btn-primary" id="nextBtn">Selanjutnya →</button>
         </div>
+      </div>
+    </div>
+  </section>
 
-        <!-- LIVE PRICE TICKER GRID -->
-        <div class="grid grid-cols-3 gap-2 text-center text-xs">
-            <div class="bg-[#111827] border border-gray-800 p-2.5 rounded-xl text-left">
-                <div class="text-gray-500 font-medium">BTC/USDT</div>
-                <div id="mini-btc" class="font-bold text-gray-200 mt-0.5 text-sm">Loading...</div>
-                <div id="perc-btc" class="text-[10px] text-gray-500 mt-0.5">0.00%</div>
-            </div>
-            <div class="bg-[#111827] border border-gray-800 p-2.5 rounded-xl text-left">
-                <div class="text-gray-500 font-medium">ETH/USDT</div>
-                <div id="mini-eth" class="font-bold text-gray-200 mt-0.5 text-sm">Loading...</div>
-                <div id="perc-eth" class="text-[10px] text-gray-500 mt-0.5">0.00%</div>
-            </div>
-            <div class="bg-[#111827] border border-gray-800 p-2.5 rounded-xl text-left">
-                <div class="text-gray-500 font-medium">SOL/USDT</div>
-                <div id="mini-sol" class="font-bold text-gray-200 mt-0.5 text-sm">Loading...</div>
-                <div id="perc-sol" class="text-[10px] text-gray-500 mt-0.5">0.00%</div>
-            </div>
+  <!-- ============ RESULT ============ -->
+  <section class="screen" id="screen-result">
+    <div class="result">
+      <div class="result-hero">
+        <div class="label">Hasil Simulasi Ujian</div>
+        <div class="result-score">
+          <span class="big" id="scoreBig">0</span>
+          <span class="of">/ 50 benar</span>
         </div>
-
-        <!-- INPUT ENGINE -->
-        <section class="bg-[#111827] border border-gray-800 rounded-2xl p-4 space-y-3 text-left">
-            <div class="flex items-center gap-2 text-sm font-bold text-gray-300">
-                <i class="fas fa-search-dollar text-purple-400"></i> AI Terminal Scanner
-            </div>
-            <div class="flex gap-2">
-                <input id="coin-input" type="text" placeholder="Masukkan koin (Contoh: BTC, PEPE, DOGE)..." class="flex-1 bg-[#0b0f19] border border-gray-800 rounded-xl px-3 py-2 text-xs uppercase font-mono tracking-wider focus:outline-none focus:border-purple-500 text-white">
-                <button onclick="askCryptoAIAllCoins()" class="btn-gradient text-white text-xs font-bold px-4 py-2 rounded-xl">Analisis AI</button>
-            </div>
-        </section>
-
-        <!-- DYNAMIC OUTPUT -->
-        <div id="ai-analysis-output" class="hidden space-y-4">
-            
-            <!-- 1. AI SIGNAL & SCORE COMPONENT -->
-            <section class="bg-[#111827] border border-gray-800 rounded-2xl p-4 text-left space-y-4">
-                <div class="flex items-center justify-between">
-                    <div class="text-sm font-bold text-gray-300 flex items-center gap-2">
-                        <i class="fas fa-brain text-blue-400"></i> AI Signal & Score
-                    </div>
-                    <div id="ai-trend-badge" class="text-[11px] font-bold px-3 py-1 rounded-xl uppercase tracking-wider">TREND ---</div>
-                </div>
-
-                <div class="space-y-1">
-                    <div class="text-xs text-gray-400">Signal</div>
-                    <div id="ai-signal-action" class="text-2xl font-black tracking-tight">---</div>
-                </div>
-
-                <!-- Progress Bars Grid -->
-                <div class="space-y-2 text-xs">
-                    <div>
-                        <div class="flex justify-between text-gray-400 mb-1"><span>Total</span><span id="score-total-val" class="font-bold">0</span></div>
-                        <div class="w-full bg-[#0b0f19] h-2 rounded-full overflow-hidden"><div id="score-total-bar" class="h-full transition-all duration-500"></div></div>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-x-4 gap-y-2 pt-1">
-                        <div>
-                            <div class="flex justify-between text-gray-500 mb-0.5"><span>Trend</span><span id="score-trend-val">0</span></div>
-                            <div class="w-full bg-[#0b0f19] h-1.5 rounded-full overflow-hidden"><div id="score-trend-bar" class="h-full transition-all duration-500"></div></div>
-                        </div>
-                        <div>
-                            <div class="flex justify-between text-gray-500 mb-0.5"><span>Momentum</span><span id="score-momentum-val">0</span></div>
-                            <div class="w-full bg-[#0b0f19] h-1.5 rounded-full overflow-hidden"><div id="score-momentum-bar" class="h-full transition-all duration-500"></div></div>
-                        </div>
-                        <div>
-                            <div class="flex justify-between text-gray-500 mb-0.5"><span>Volume</span><span id="score-volume-val">0</span></div>
-                            <div class="w-full bg-[#0b0f19] h-1.5 rounded-full overflow-hidden"><div id="score-volume-bar" class="h-full transition-all duration-500"></div></div>
-                        </div>
-                        <div>
-                            <div class="flex justify-between text-gray-500 mb-0.5"><span>Structure</span><span id="score-structure-val">0</span></div>
-                            <div class="w-full bg-[#0b0f19] h-1.5 rounded-full overflow-hidden"><div id="score-structure-bar" class="h-full transition-all duration-500"></div></div>
-                        </div>
-                        <div>
-                            <div class="flex justify-between text-gray-500 mb-0.5"><span>Pattern</span><span id="score-pattern-val">0</span></div>
-                            <div class="w-full bg-[#0b0f19] h-1.5 rounded-full overflow-hidden"><div id="score-pattern-bar" class="h-full transition-all duration-500"></div></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="flex justify-between items-center pt-2 border-t border-gray-800/60 text-xs">
-                    <div>Confidence: <span id="ai-confidence-pct" class="font-bold text-white">0%</span></div>
-                    <div>Risk: <span id="ai-risk-level" class="font-bold">---</span></div>
-                </div>
-            </section>
-
-            <!-- 2. SMART ENTRY SYSTEM COMPONENT -->
-            <section class="bg-[#111827] border border-gray-800 rounded-2xl p-4 text-left space-y-3">
-                <div class="text-sm font-bold text-gray-300 flex items-center gap-2">
-                    <i class="fas fa-crosshairs text-blue-400"></i> Smart Entry System
-                </div>
-
-                <div class="space-y-2 text-xs">
-                    <div class="flex justify-between">
-                        <span class="text-gray-400">Direction</span>
-                        <span id="se-direction" class="font-bold tracking-wider">---</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-400">Entry Zone</span>
-                        <span id="se-entry-zone" class="font-mono text-gray-200">---</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-400">Entry Ideal</span>
-                        <span id="se-entry-ideal" class="font-mono text-white font-bold">---</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-400">Stop Loss</span>
-                        <span id="se-stop-loss" class="font-mono font-medium">---</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-400">TP 1</span>
-                        <span id="se-tp1" class="font-mono text-emerald-400 font-medium">---</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-400">TP 2</span>
-                        <span id="se-tp2" class="font-mono text-emerald-400 font-medium">---</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-400">TP 3</span>
-                        <span id="se-tp3" class="font-mono text-emerald-400 font-medium">---</span>
-                    </div>
-                </div>
-
-                <!-- Mini Status Box Grid (Risk/Reward & Probability) -->
-                <div class="grid grid-cols-2 gap-3 pt-2">
-                    <div class="bg-[#0b0f19] border border-gray-800/80 p-2.5 rounded-xl">
-                        <div class="text-[10px] text-gray-500 font-medium">Risk/Reward</div>
-                        <div id="se-card-rr" class="text-sm font-bold text-gray-200 mt-0.5">1:---</div>
-                    </div>
-                    <div class="bg-[#0b0f19] border border-gray-800/80 p-2.5 rounded-xl">
-                        <div class="text-[10px] text-gray-500 font-medium">Probability</div>
-                        <div id="se-card-prob" class="text-sm font-bold text-gray-200 mt-0.5">0%</div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- 3. AI REASONING & ALASAN DETAIL -->
-            <section class="bg-[#111827] border border-gray-800 rounded-2xl p-4 text-left space-y-2">
-                <div class="text-sm font-bold text-gray-300 flex items-center gap-2">
-                    <i class="fas fa-brain text-purple-400"></i> AI Analyst Reasoning
-                </div>
-                <div id="ai-reasoning-output-text" class="text-xs text-gray-400 leading-relaxed space-y-2">
-                    <!-- Diisi Dinamis Lewat JS -->
-                </div>
-            </section>
-
+        <div class="result-msg" id="resultMsg">Memproses hasil…</div>
+        <div class="result-stats">
+          <div class="result-stat"><div class="n" id="statCorrect">0</div><div class="l">Jawaban benar</div></div>
+          <div class="result-stat"><div class="n" id="statWrong">0</div><div class="l">Jawaban salah</div></div>
+          <div class="result-stat"><div class="n" id="statEmpty">0</div><div class="l">Tidak dijawab</div></div>
+          <div class="result-stat"><div class="n" id="statTime">00:00</div><div class="l">Waktu dipakai</div></div>
         </div>
+      </div>
 
-        <!-- LIVE DATA FEED SECTIONS -->
-        <section class="bg-[#111827] border border-gray-800 rounded-2xl p-4 text-left space-y-2">
-            <div class="text-sm font-bold text-gray-300 flex items-center gap-2"><i class="fas fa-fish text-blue-400"></i> Global Whale Trades</div>
-            <div id="whale-container" class="space-y-1.5 max-h-28 overflow-y-auto pr-1 text-xs font-mono"><div class="text-gray-600 text-center py-2">Menghubungkan stream data...</div></div>
-        </section>
+      <div class="cat-breakdown">
+        <h3>Capaian per kategori</h3>
+        <div id="catBreakdownList"></div>
+      </div>
 
-        <section class="bg-[#111827] border border-gray-800 rounded-2xl p-4 text-left space-y-2">
-            <div class="text-sm font-bold text-gray-300 flex items-center gap-2"><i class="fas fa-skull-crossbones text-red-400"></i> Global Liquidation Feed</div>
-            <div id="liq-container" class="space-y-1.5 max-h-28 overflow-y-auto pr-1 text-xs font-mono"><div class="text-gray-600 text-center py-2">Menunggu likuidasi pasar...</div></div>
-        </section>
-
-        <!-- LIVE GLOBAL NEWS SECTIONS -->
-        <section class="bg-[#111827] border border-gray-800 rounded-2xl p-4 text-left space-y-3">
-            <div class="flex items-center justify-between border-b border-gray-800 pb-2">
-                <div class="text-sm font-bold text-gray-300 flex items-center gap-2">
-                    <i class="fas fa-newspaper text-emerald-400"></i> Live Global News
-                </div>
-                <span id="news-time" class="text-[10px] text-gray-500 font-mono">Loading time...</span>
-            </div>
-            <div id="news-feed" class="space-y-3 max-h-48 overflow-y-auto pr-1 text-xs">
-                <!-- Diisi oleh JS -->
-            </div>
-        </section>
-
-        <!-- WEBSITE & DATA SOURCE SYNC STATUS -->
-        <section class="bg-[#111827] border border-gray-800 rounded-2xl p-4 text-left space-y-3">
-            <div class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Website & Data Source Sync Status</div>
-            <div class="grid grid-cols-2 gap-2 text-[11px]">
-                <div class="bg-[#0b0f19] p-2 rounded-xl border border-gray-800 flex justify-between items-center">
-                    <div>
-                        <p class="text-gray-400 font-semibold">Hyperliquid API</p>
-                        <p id="sync-hl" class="text-[9px] text-gray-500">Syncing...</p>
-                    </div>
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                </div>
-                <div class="bg-[#0b0f19] p-2 rounded-xl border border-gray-800 flex justify-between items-center">
-                    <div>
-                        <p class="text-gray-400 font-semibold">CoinGecko Data</p>
-                        <p id="sync-cg" class="text-[9px] text-gray-500">Syncing...</p>
-                    </div>
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                </div>
-                <div class="bg-[#0b0f19] p-2 rounded-xl border border-gray-800 flex justify-between items-center">
-                    <div>
-                        <p class="text-gray-400 font-semibold">Bloomberg Terminal</p>
-                        <p id="sync-bb" class="text-[9px] text-gray-500">Syncing...</p>
-                    </div>
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                </div>
-                <div class="bg-[#0b0f19] p-2 rounded-xl border border-gray-800 flex justify-between items-center">
-                    <div>
-                        <p class="text-gray-400 font-semibold">CoinDesk Feed</p>
-                        <p id="sync-cd" class="text-[9px] text-gray-500">Syncing...</p>
-                    </div>
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                </div>
-            </div>
-        </section>
-
-    </main>
-
-    <!-- Fixed Bottom Navigation Bar -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-[#0b0f19]/90 backdrop-blur-md border-t border-gray-800 p-4 z-50">
-        <div class="max-w-md mx-auto flex justify-around text-gray-500 text-xl">
-            <button class="text-blue-500"><i class="fas fa-home"></i></button>
-            <button class="hover:text-gray-300"><i class="fas fa-chart-pie"></i></button>
-            <button class="hover:text-gray-300"><i class="fas fa-robot"></i></button>
+      <div class="review-head">
+        <h3>Pembahasan soal</h3>
+        <div class="filter-tabs">
+          <button class="active" data-filter="wrong" id="filterWrong">Hanya yang salah</button>
+          <button data-filter="all" id="filterAll">Semua soal</button>
         </div>
-    </nav>
+      </div>
+      <div id="reviewList"></div>
 
-    <!-- ENGINE CORE LOGIC SCRIPT -->
-    <script>
-        const livePrices = {};
-        const previousPrices = {};
-        
-        // Menambahkan usdtidrt@ticker ke WebSocket agar USDT/IDR juga live
-        const wsUrl = "wss://stream.binance.com:9443/ws/btcusdt@ticker/ethusdt@ticker/solusdt@ticker/usdtidrt@ticker/!miniTicker@arr";
-        const futuresWsUrl = "wss://fstream.binance.com/stream?streams=!forceOrder@arr/!miniTicker@arr";
+      <div class="restart-bar">
+        <button class="btn start-btn" id="restartBtn" style="margin-top:0;">Ulangi Simulasi</button>
+      </div>
+    </div>
+  </section>
 
-        let mainWs = new WebSocket(wsUrl);
-        let futuresWs = new WebSocket(futuresWsUrl);
+</div>
 
-        mainWs.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-            if(data.s) {
-                // Khusus untuk harga USDT/IDRT
-                if (data.s === 'USDTIDRT') {
-                    const usdtPrice = parseFloat(data.c);
-                    document.getElementById('macro-usdt').innerText = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(usdtPrice);
-                    return; // Skip the rest for IDRT
-                }
+<!-- ============ BOTTOM LJK GRID NAV ============ -->
+<div class="gridbar" id="gridbar">
+  <div class="gridbar-inner">
+    <div class="gridbar-toggle" id="gridToggle">
+      <span>Lembar Jawaban — ketuk untuk lompat ke nomor lain</span>
+      <svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="numgrid" id="numgrid"></div>
+    <div style="display:flex; justify-content:flex-end; margin-top:10px;">
+      <button class="btn btn-finish" id="finishBtn">Selesai &amp; Lihat Hasil</button>
+    </div>
+  </div>
+</div>
 
-                const sym = data.s.replace('USDT', '').toLowerCase();
-                const curPrice = parseFloat(data.c);
-                livePrices[sym] = curPrice;
+<footer>Simulasi internal — bukan soal resmi seleksi FK UMI. Dibuat untuk membantu persiapan belajar calon mahasiswa baru.</footer>
 
-                const priceEl = document.getElementById(`mini-${sym}`);
-                const percEl = document.getElementById(`perc-${sym}`);
-                if(priceEl) {
-                    priceEl.innerText = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(curPrice);
-                    previousPrices[sym] = curPrice;
-                }
-                if(percEl) {
-                    const pct = parseFloat(data.P);
-                    percEl.innerText = `${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%`;
-                    percEl.className = pct >= 0 ? "text-[10px] text-emerald-400 mt-0.5 font-medium" : "text-[10px] text-red-400 mt-0.5 font-medium";
-                }
-            }
-        };
+<script>
+const QUESTIONS = [
+  // ===== ANALOGI VERBAL (8) =====
+  {cat:"Analogi Verbal", q:"DOKTER : PASIEN = GURU : ...", opts:["Sekolah","Murid","Buku","Papan tulis","Kelas"], ans:1, exp:"Hubungannya adalah profesi dengan pihak yang dilayani/dibimbing. Dokter melayani pasien, sebagaimana guru membimbing murid."},
+  {cat:"Analogi Verbal", q:"JANTUNG : DARAH = PARU-PARU : ...", opts:["Udara","Oksigen","Napas","Trakea","Alveolus"], ans:1, exp:"Jantung berfungsi memompa darah, sedangkan paru-paru berfungsi menyerap oksigen dari udara yang dihirup."},
+  {cat:"Analogi Verbal", q:"PANAS : DINGIN = TERANG : ...", opts:["Gelap","Lampu","Siang","Matahari","Cahaya"], ans:0, exp:"Pola hubungannya adalah pasangan kata yang berlawanan makna (antonim): panas-dingin sejajar dengan terang-gelap."},
+  {cat:"Analogi Verbal", q:"DOKTER : STETOSKOP = PELUKIS : ...", opts:["Lukisan","Kuas","Galeri","Kanvas","Warna"], ans:1, exp:"Hubungannya adalah profesi dengan alat utama yang digunakan sehari-hari. Dokter menggunakan stetoskop, pelukis menggunakan kuas."},
+  {cat:"Analogi Verbal", q:"BUKU : PERPUSTAKAAN = OBAT : ...", opts:["Apotek","Resep","Dokter","Pasien","Pil"], ans:0, exp:"Hubungannya adalah benda dengan tempat ia biasa disimpan dan disediakan. Buku disimpan di perpustakaan, obat disediakan di apotek."},
+  {cat:"Analogi Verbal", q:"KAKI : SEPATU = TANGAN : ...", opts:["Jari","Sarung tangan","Lengan","Cincin","Pergelangan"], ans:1, exp:"Hubungannya adalah bagian tubuh dengan benda yang dipakai untuk melindunginya. Kaki dilindungi sepatu, tangan dilindungi sarung tangan."},
+  {cat:"Analogi Verbal", q:"PADI : BERAS = KEDELAI : ...", opts:["Susu","Tahu","Sayur","Kacang","Minyak"], ans:1, exp:"Hubungannya adalah bahan mentah dengan hasil olahan utamanya. Padi diolah menjadi beras, kedelai diolah menjadi tahu."},
+  {cat:"Analogi Verbal", q:"JAM : WAKTU = TERMOMETER : ...", opts:["Panas","Suhu","Demam","Air raksa","Derajat"], ans:1, exp:"Hubungannya adalah alat ukur dengan besaran yang diukurnya. Jam mengukur waktu, termometer mengukur suhu."},
 
-        futuresWs.onmessage = (event) => {
-            const rawData = JSON.parse(event.data);
-            const streamType = rawData.stream;
-            const data = rawData.data;
+  // ===== SINONIM (6) =====
+  {cat:"Sinonim", q:"Sinonim dari kata KONTEMPLASI adalah ...", opts:["Tindakan","Renungan","Perdebatan","Penjelasan","Penolakan"], ans:1, exp:"Kontemplasi berarti perenungan atau pemikiran mendalam atas suatu hal, sehingga padanan katanya adalah 'renungan'."},
+  {cat:"Sinonim", q:"Sinonim dari kata EMPATI adalah ...", opts:["Simpati","Antipati","Apatis","Toleransi","Curiga"], ans:0, exp:"Empati adalah kemampuan ikut merasakan keadaan emosional orang lain; di antara pilihan, 'simpati' paling dekat maknanya."},
+  {cat:"Sinonim", q:"Sinonim dari kata ANOMALI adalah ...", opts:["Normal","Keteraturan","Penyimpangan","Kesetaraan","Keseimbangan"], ans:2, exp:"Anomali berarti ketidaknormalan atau hal yang menyimpang dari aturan/pola umum, sehingga padanannya adalah 'penyimpangan'."},
+  {cat:"Sinonim", q:"Dalam istilah medis, PROGNOSIS bersinonim dengan ...", opts:["Diagnosis penyakit","Perkiraan perjalanan penyakit ke depan","Riwayat penyakit pasien","Gejala yang dialami pasien","Jenis pengobatan yang diberikan"], ans:1, exp:"Prognosis adalah perkiraan dokter tentang bagaimana suatu penyakit akan berkembang dan kemungkinan hasil akhirnya, berbeda dari diagnosis (penentuan jenis penyakit)."},
+  {cat:"Sinonim", q:"Sinonim dari kata AKURAT adalah ...", opts:["Tepat","Lambat","Samar","Acak","Ragu"], ans:0, exp:"Akurat berarti tepat atau sesuai dengan ukuran/kenyataan sebenarnya, sehingga sinonimnya adalah 'tepat'."},
+  {cat:"Sinonim", q:"Sinonim dari kata INSIDEN adalah ...", opts:["Rencana","Kejadian","Tujuan","Proses","Akibat"], ans:1, exp:"Insiden berarti suatu peristiwa atau kejadian, biasanya yang tidak diharapkan, sehingga padanannya adalah 'kejadian'."},
 
-            if (streamType === '!miniTicker@arr') {
-                data.forEach(item => {
-                    if(item.s.endsWith('USDT')) {
-                        livePrices[item.s.replace('USDT', '').toLowerCase()] = parseFloat(item.c);
-                    }
-                });
-            }
+  // ===== ANTONIM (6) =====
+  {cat:"Antonim", q:"Antonim dari kata AKUT adalah ...", opts:["Parah","Mendadak","Kronis","Serius","Cepat"], ans:2, exp:"Akut berarti terjadi secara tiba-tiba dan berlangsung singkat, lawannya adalah kronis yaitu berlangsung lama/menahun."},
+  {cat:"Antonim", q:"Antonim dari kata OPTIMIS adalah ...", opts:["Yakin","Percaya diri","Pesimis","Realistis","Antusias"], ans:2, exp:"Optimis berarti penuh harapan akan hasil yang baik, lawan katanya adalah pesimis, yaitu cenderung melihat sisi buruk/gagal."},
+  {cat:"Antonim", q:"Antonim dari kata STERIL adalah ...", opts:["Bersih","Higienis","Terkontaminasi","Aman","Murni"], ans:2, exp:"Steril berarti bebas dari kuman/kotoran, lawannya adalah terkontaminasi, yaitu tercemar oleh zat atau mikroorganisme asing."},
+  {cat:"Antonim", q:"Antonim dari kata KRONIS adalah ...", opts:["Lama","Menahun","Akut","Parah","Berulang"], ans:2, exp:"Kronis berarti berlangsung lama atau menahun, lawan katanya adalah akut, yaitu terjadi tiba-tiba dan berlangsung singkat."},
+  {cat:"Antonim", q:"Antonim dari kata MAYORITAS adalah ...", opts:["Sebagian","Minoritas","Keseluruhan","Banyak","Umum"], ans:1, exp:"Mayoritas berarti bagian terbesar/jumlah terbanyak, lawan katanya adalah minoritas, yaitu bagian yang jumlahnya lebih sedikit."},
+  {cat:"Antonim", q:"Antonim dari kata EKSPANSI adalah ...", opts:["Perluasan","Penambahan","Kontraksi","Pertumbuhan","Pengembangan"], ans:2, exp:"Ekspansi berarti perluasan atau pengembangan, lawan katanya adalah kontraksi, yaitu penyusutan atau pengecilan."},
 
-            // Global Liquidation Feed
-            if (streamType === '!forceOrder@arr') {
-                const o = data.o;
-                const totalLiq = parseFloat(o.q) * parseFloat(o.p);
-                if(totalLiq > 3000) {
-                    const sideStr = o.S === 'SELL' ? 'LONG LIQ' : 'SHORT LIQ';
-                    updateFeed('liq-container', `
-                        <div class="flex justify-between items-center bg-red-950/20 p-2 rounded-xl border border-red-900/20 feed-item">
-                            <div>💀 <span class="font-bold text-gray-200">${o.s.replace('USDT','')}</span></div>
-                            <div class="text-red-400 font-bold text-[10px]">${sideStr}</div>
-                            <div class="text-red-400 font-bold">$${Math.round(totalLiq).toLocaleString()}</div>
-                        </div>
-                    `);
-                }
-            }
-        };
+  // ===== DERET ANGKA (8) =====
+  {cat:"Deret Angka", q:"Lanjutan dari deret berikut adalah ... 2, 4, 8, 16, ...", opts:["24","30","32","36","40"], ans:2, exp:"Pola deret ini adalah setiap suku dikalikan 2 dari suku sebelumnya: 2×2=4, 4×2=8, 8×2=16, 16×2=32."},
+  {cat:"Deret Angka", q:"Lanjutan dari deret berikut adalah ... 3, 6, 11, 18, 27, ...", opts:["36","37","38","39","40"], ans:2, exp:"Selisih antar suku bertambah dengan bilangan ganjil: +3, +5, +7, +9, sehingga selisih berikutnya +11. 27 + 11 = 38."},
+  {cat:"Deret Angka", q:"Lanjutan dari deret berikut adalah ... 1, 4, 9, 16, 25, ...", opts:["30","32","34","36","49"], ans:3, exp:"Deret ini adalah barisan bilangan kuadrat: 1², 2², 3², 4², 5², sehingga suku berikutnya adalah 6² = 36."},
+  {cat:"Deret Angka", q:"Lanjutan dari deret berikut adalah ... 100, 95, 85, 70, 50, ...", opts:["20","25","30","35","45"], ans:1, exp:"Selisih antar suku berkurang dengan kelipatan 5: -5, -10, -15, -20, sehingga selisih berikutnya -25. 50 - 25 = 25."},
+  {cat:"Deret Angka", q:"Lanjutan dari deret berikut adalah ... 2, 3, 5, 8, 13, 21, ...", opts:["26","29","33","34","36"], ans:3, exp:"Deret ini mengikuti pola Fibonacci, setiap suku merupakan penjumlahan dua suku sebelumnya: 13 + 21 = 34."},
+  {cat:"Deret Angka", q:"Lanjutan dari deret berikut adalah ... 5, 10, 9, 18, 17, 34, ...", opts:["30","33","35","40","42"], ans:1, exp:"Pola deret berselang-seling: dikali 2, lalu dikurangi 1, dan seterusnya. Setelah 34, langkah berikutnya adalah -1, sehingga 34 - 1 = 33."},
+  {cat:"Deret Angka", q:"Lanjutan dari deret berikut adalah ... 7, 9, 13, 19, 27, ...", opts:["33","35","37","39","41"], ans:2, exp:"Selisih antar suku bertambah dengan kelipatan 2: +2, +4, +6, +8, sehingga selisih berikutnya +10. 27 + 10 = 37."},
+  {cat:"Deret Angka", q:"Lanjutan dari deret berikut adalah ... 81, 27, 9, 3, ...", opts:["0","1","1/3","2","-1"], ans:1, exp:"Setiap suku merupakan hasil bagi suku sebelumnya dengan 3: 81÷3=27, 27÷3=9, 9÷3=3, 3÷3=1."},
 
-        function updateFeed(containerId, htmlContent) {
-            const container = document.getElementById(containerId);
-            if(container.innerText.includes("Menghubungkan") || container.innerText.includes("Menunggu")) container.innerHTML = "";
-            container.insertAdjacentHTML('afterbegin', htmlContent);
-            if (container.children.length > 3) container.removeChild(container.lastChild);
-        }
+  // ===== PENALARAN LOGIS (8) =====
+  {cat:"Penalaran Logis", q:"Premis 1: Semua dokter bisa mendiagnosis penyakit. Premis 2: Andi adalah seorang dokter. Maka kesimpulan yang tepat adalah ...", opts:["Andi tidak bisa mendiagnosis penyakit","Andi bisa mendiagnosis penyakit","Semua orang bisa mendiagnosis penyakit","Andi bukan seorang dokter","Tidak dapat disimpulkan"], ans:1, exp:"Karena seluruh anggota kelompok 'dokter' memiliki sifat tersebut (silogisme kategoris), dan Andi termasuk anggota kelompok itu, maka sifat tersebut otomatis berlaku pada Andi."},
+  {cat:"Penalaran Logis", q:"Jika hari hujan, maka jalan basah. Hari ini jalan tidak basah. Maka kesimpulan yang tepat adalah ...", opts:["Hari ini hujan","Hari ini hujan deras","Hari ini tidak hujan","Tidak dapat disimpulkan","Jalan akan basah besok"], ans:2, exp:"Ini adalah pola modus tollens: jika P maka Q, dan Q terbukti salah (jalan tidak basah), maka P pasti salah (hari tidak hujan)."},
+  {cat:"Penalaran Logis", q:"Semua mahasiswa kedokteran rajin belajar. Sebagian mahasiswa kedokteran aktif organisasi. Kesimpulan yang paling tepat adalah ...", opts:["Semua yang aktif organisasi pasti rajin belajar","Sebagian mahasiswa yang rajin belajar aktif organisasi","Semua mahasiswa kedokteran aktif organisasi","Tidak ada mahasiswa kedokteran yang aktif organisasi","Tidak dapat ditarik kesimpulan apa pun"], ans:1, exp:"Karena seluruh mahasiswa kedokteran rajin belajar, maka kelompok 'sebagian yang aktif organisasi' otomatis termasuk dalam kelompok yang rajin belajar."},
+  {cat:"Penalaran Logis", q:"A lebih tinggi dari B. C lebih pendek dari B. Maka kesimpulan yang tepat adalah ...", opts:["A paling pendek di antara ketiganya","C lebih tinggi dari A","A lebih tinggi dari C","B paling tinggi di antara ketiganya","Tidak dapat ditentukan"], ans:2, exp:"Urutan tinggi badan dari yang tertinggi: A > B > C. Karena A lebih tinggi dari B, dan B lebih tinggi dari C, maka A pasti lebih tinggi dari C."},
+  {cat:"Penalaran Logis", q:"Semua kucing adalah mamalia. Sebagian mamalia adalah karnivora. Maka kesimpulan yang tepat adalah ...", opts:["Semua kucing pasti karnivora","Sebagian kucing pasti karnivora","Tidak ada kucing yang karnivora","Semua karnivora adalah kucing","Tidak dapat disimpulkan secara pasti"], ans:4, exp:"Premis hanya menyatakan 'sebagian' mamalia adalah karnivora, tanpa menjelaskan apakah bagian itu mencakup kucing atau tidak, sehingga hubungan kucing dengan karnivora tidak dapat dipastikan."},
+  {cat:"Penalaran Logis", q:"Jika x = 2y, y = 3z, dan z = 4, maka nilai x adalah ...", opts:["8","12","16","24","28"], ans:3, exp:"Substitusi bertahap: z=4, maka y=3×4=12, maka x=2×12=24."},
+  {cat:"Penalaran Logis", q:"Lima orang duduk berjajar. Budi di sebelah kanan Ani, Citra di sebelah kiri Ani, Deni di ujung paling kanan, dan Eka di ujung paling kiri. Urutan duduk dari kiri ke kanan adalah ...", opts:["Eka, Citra, Ani, Budi, Deni","Eka, Ani, Citra, Budi, Deni","Deni, Budi, Ani, Citra, Eka","Eka, Budi, Ani, Citra, Deni","Ani, Citra, Budi, Eka, Deni"], ans:0, exp:"Karena Eka di ujung kiri dan Deni di ujung kanan, sementara Citra ada di kiri Ani dan Budi di kanan Ani, urutannya menjadi: Eka, Citra, Ani, Budi, Deni."},
+  {cat:"Penalaran Logis", q:"Premis 1: Tidak ada manusia yang abadi. Premis 2: Socrates adalah manusia. Maka kesimpulan yang tepat adalah ...", opts:["Socrates abadi","Socrates tidak abadi","Socrates bukan manusia","Semua manusia adalah Socrates","Tidak dapat disimpulkan"], ans:1, exp:"Karena tidak satu pun anggota kelompok 'manusia' bersifat abadi, dan Socrates termasuk anggota kelompok itu, maka Socrates pasti tidak abadi."},
 
-        // Ambil Data Macro Global (Mock untuk animasi detak)
-        function fetchGlobalMacro() {
-            // Simulasi F&G Index agar bergerak realistis
-            setInterval(() => {
-                const fgi = Math.floor(Math.random() * (75 - 70 + 1)) + 70;
-                document.getElementById('macro-fgi').innerText = `${fgi} (Greed)`;
-            }, 10000);
+  // ===== KUANTITATIF / NUMERIK (8) =====
+  {cat:"Kuantitatif", q:"Jika 3x + 7 = 22, maka nilai x adalah ...", opts:["3","4","5","6","7"], ans:2, exp:"3x + 7 = 22 → 3x = 15 → x = 15 ÷ 3 = 5."},
+  {cat:"Kuantitatif", q:"Sebuah obat harus diminum 3 kali sehari selama 7 hari, masing-masing 2 tablet. Berapa total tablet yang dibutuhkan?", opts:["21","35","42","49","56"], ans:2, exp:"Total tablet = 3 kali/hari × 7 hari × 2 tablet/kali = 42 tablet."},
+  {cat:"Kuantitatif", q:"Harga sebuah buku setelah diskon 20% adalah Rp80.000. Berapa harga buku sebelum diskon?", opts:["Rp96.000","Rp100.000","Rp104.000","Rp120.000","Rp160.000"], ans:1, exp:"Harga setelah diskon = 80% dari harga awal. Harga awal = Rp80.000 ÷ 0,8 = Rp100.000."},
+  {cat:"Kuantitatif", q:"Sebuah larutan infus mengandung dekstrosa 5% dalam 500 ml cairan. Berapa gram dekstrosa dalam larutan tersebut?", opts:["5 gram","10 gram","25 gram","50 gram","100 gram"], ans:2, exp:"5% dari 500 ml = 5/100 × 500 = 25 gram dekstrosa."},
+  {cat:"Kuantitatif", q:"Perbandingan jumlah dokter dan perawat di sebuah rumah sakit adalah 2:5. Jika jumlah perawat 150 orang, berapa jumlah dokter?", opts:["40","50","60","75","90"], ans:2, exp:"Setiap satu bagian = 150 ÷ 5 = 30 orang. Jumlah dokter = 2 × 30 = 60 orang."},
+  {cat:"Kuantitatif", q:"Rata-rata nilai 5 mahasiswa adalah 80. Jika nilai mahasiswa keenam adalah 92, berapa rata-rata nilai keenam mahasiswa tersebut?", opts:["81","82","83","84","85"], ans:1, exp:"Total nilai 5 mahasiswa = 5 × 80 = 400. Total 6 mahasiswa = 400 + 92 = 492. Rata-rata baru = 492 ÷ 6 = 82."},
+  {cat:"Kuantitatif", q:"Sebuah kereta menempuh jarak 240 km dalam waktu 4 jam. Berapa kecepatan rata-rata kereta tersebut?", opts:["50 km/jam","55 km/jam","60 km/jam","65 km/jam","70 km/jam"], ans:2, exp:"Kecepatan rata-rata = jarak ÷ waktu = 240 km ÷ 4 jam = 60 km/jam."},
+  {cat:"Kuantitatif", q:"25% dari suatu bilangan adalah 45. Berapakah bilangan tersebut?", opts:["120","135","150","180","225"], ans:3, exp:"Jika 25% × n = 45, maka n = 45 ÷ 0,25 = 180."},
 
-            // Fetch Data USDT Awal sebelum WebSocket connect
-            fetch('https://api.binance.com/api/v3/ticker/price?symbol=USDTIDRT')
-                .then(response => response.json())
-                .then(data => {
-                    if (data && data.price) {
-                        const usdtPrice = parseFloat(data.price);
-                        document.getElementById('macro-usdt').innerText = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(usdtPrice);
-                    }
-                }).catch(err => console.log('Gagal load USDT API'));
-        }
+  // ===== PEMAHAMAN UMUM (6) =====
+  {cat:"Pemahaman Umum", q:"Lembaga yang bertanggung jawab menerbitkan Surat Tanda Registrasi (STR) bagi dokter di Indonesia adalah ...", opts:["Ikatan Dokter Indonesia (IDI)","Kementerian Kesehatan","Konsil Kedokteran Indonesia (KKI)","BPJS Kesehatan","Dinas Kesehatan setempat"], ans:2, exp:"Penerbitan STR merupakan kewenangan Konsil Kedokteran Indonesia (KKI) berdasarkan rekomendasi organisasi profesi, bukan oleh IDI maupun Kemenkes secara langsung."},
+  {cat:"Pemahaman Umum", q:"Sumpah yang diucapkan dokter sebelum mulai berpraktik secara resmi dikenal dengan istilah ...", opts:["Sumpah Pemuda","Sumpah Hipokrates","Sumpah Jabatan","Ikrar Dokter","Janji Medis"], ans:1, exp:"Sumpah profesi kedokteran yang berisi etika dan tanggung jawab dokter dikenal secara internasional sebagai Sumpah Hipokrates, sesuai dengan nama tabib Yunani Kuno, Hippocrates."},
+  {cat:"Pemahaman Umum", q:"Singkatan TPA dalam konteks seleksi penerimaan mahasiswa baru adalah ...", opts:["Tes Potensi Akademik","Tes Penalaran Akademik","Tes Prestasi Akademik","Tes Pengetahuan Akademik","Tes Persiapan Akademik"], ans:0, exp:"TPA merupakan singkatan resmi dari Tes Potensi Akademik, yaitu tes yang mengukur kemampuan penalaran verbal, numerik, dan logika seseorang."},
+  {cat:"Pemahaman Umum", q:"Prinsip etika kedokteran yang menekankan 'tidak boleh merugikan pasien' disebut ...", opts:["Beneficence","Non-maleficence","Autonomy","Justice","Veracity"], ans:1, exp:"Non-maleficence adalah prinsip etika kedokteran yang berarti 'jangan merugikan/mencederai pasien', berbeda dengan beneficence yang berarti berbuat baik secara aktif kepada pasien."},
+  {cat:"Pemahaman Umum", q:"Organisasi profesi dokter di Indonesia bernama ...", opts:["PPNI","IBI","IDI","PDGI","IAI"], ans:2, exp:"Organisasi profesi bagi dokter di Indonesia adalah Ikatan Dokter Indonesia (IDI), berbeda dengan PPNI (perawat), IBI (bidan), PDGI (dokter gigi), dan IAI (apoteker)."},
+  {cat:"Pemahaman Umum", q:"Manakah satuan yang umum digunakan untuk menyatakan tekanan darah secara klinis?", opts:["bpm","mmHg","mg/dL","mL/menit","°C"], ans:1, exp:"Tekanan darah dinyatakan dalam satuan milimeter air raksa (mmHg), seperti pada hasil pengukuran 120/80 mmHg."},
+];
 
-        // Live News Feed Simulasi Data
-        function mockNewsFeed(isBearish) {
-            const newsFeedEl = document.getElementById('news-feed');
-            const targetNews = isBearish ? [
-                { title: "Data Kalshi Menunjukkan Probabilitas Koreksi Menuju Support Kuat", source: "CoinDesk", time: "12 mnt lalu", sentiment: "Bearish" },
-                { title: "Whale Berisiko Terkena Likuidasi Raksasa $30 Juta di Market Derivatif", source: "Cointelegraph", time: "1 jam lalu", sentiment: "Bearish" }
-            ] : [
-                { title: "BlackRock Mencatat Rekor Inflow Baru pada Spot Bitcoin ETF", source: "Bloomberg", time: "5 mnt lalu", sentiment: "Bullish" },
-                { title: "Franklin Templeton Selesaikan Akselerasi Infrastruktur Aset Kripto", source: "Reuters", time: "2 jam lalu", sentiment: "Bullish" }
-            ];
+const TOTAL = QUESTIONS.length;
+const TIME_LIMIT = 90*60; // seconds
+let answers = new Array(TOTAL).fill(null);
+let current = 0;
+let timeLeft = TIME_LIMIT;
+let timerHandle = null;
+let started = false;
 
-            newsFeedEl.innerHTML = '';
-            targetNews.forEach(news => {
-                const badgeColor = news.sentiment === 'Bullish' ? 'bg-green-950 text-green-400 border-green-900/40' : 'bg-red-950 text-red-400 border-red-900/40';
-                newsFeedEl.innerHTML += `
-                    <div class="p-2.5 bg-[#0b0f19] border border-gray-800 rounded-xl">
-                        <div class="flex justify-between text-[10px] text-gray-500 mb-1">
-                            <span>${news.source} • ${news.time}</span>
-                            <span class="px-1.5 py-0.2 rounded border ${badgeColor} font-bold text-[9px]">${news.sentiment}</span>
-                        </div>
-                        <p class="font-medium text-gray-200">${news.title}</p>
-                    </div>
-                `;
-            });
-            document.getElementById('news-time').innerText = "Sync: " + new Date().toLocaleTimeString();
-        }
+// ---------- DOM refs ----------
+const screens = {
+  landing: document.getElementById('screen-landing'),
+  exam: document.getElementById('screen-exam'),
+  result: document.getElementById('screen-result'),
+};
+const examHead = document.getElementById('examHead');
+const gridbar = document.getElementById('gridbar');
 
-        // Update Sync Status Website & API
-        function updateSyncStatus() {
-            const timeStr = "Sukses " + new Date().toLocaleTimeString();
-            document.getElementById('sync-hl').innerText = timeStr;
-            document.getElementById('sync-cg').innerText = timeStr;
-            document.getElementById('sync-bb').innerText = timeStr;
-            document.getElementById('sync-cd').innerText = timeStr;
-        }
+function showScreen(name){
+  Object.values(screens).forEach(s=>s.classList.remove('active'));
+  screens[name].classList.add('active');
+  examHead.style.display = (name==='exam') ? 'block' : 'none';
+  gridbar.style.display = (name==='exam') ? 'block' : 'none';
+  window.scrollTo({top:0, behavior:'instant' in window ? 'instant':'auto'});
+}
 
-        // PARSING LOGIKA KALKULASI GABUNGAN MODUL BERDASARKAN GAMBAR REFERENSI
-        async function askCryptoAIAllCoins() {
-            const input = document.getElementById('coin-input').value.trim().toUpperCase();
-            const outputBox = document.getElementById('ai-analysis-output');
-            if(!input) return;
+// ---------- LANDING ----------
+document.getElementById('startBtn').addEventListener('click', ()=>{
+  started = true;
+  buildNumGrid();
+  renderQuestion();
+  showScreen('exam');
+  startTimer();
+});
 
-            const tokenLower = input.toLowerCase();
-            let finalPrice = livePrices[tokenLower];
+// ---------- TIMER ----------
+function startTimer(){
+  updateTimerText();
+  timerHandle = setInterval(()=>{
+    timeLeft--;
+    updateTimerText();
+    if(timeLeft<=0){
+      clearInterval(timerHandle);
+      finishExam();
+    }
+  },1000);
+}
+function updateTimerText(){
+  const m = Math.floor(timeLeft/60).toString().padStart(2,'0');
+  const s = (timeLeft%60).toString().padStart(2,'0');
+  document.getElementById('timerText').textContent = `${m}:${s}`;
+  const timerEl = document.getElementById('timer');
+  if(timeLeft<=300){ timerEl.classList.add('warn'); } else { timerEl.classList.remove('warn'); }
+}
 
-            if(!finalPrice) {
-                try {
-                    const res = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${input}USDT`);
-                    const resData = await res.json();
-                    if(resData && resData.price) finalPrice = parseFloat(resData.price);
-                } catch(e) {}
-            }
+// ---------- QUESTION RENDER ----------
+function renderQuestion(){
+  const q = QUESTIONS[current];
+  document.getElementById('qnumTag').textContent = 'NO. ' + String(current+1).padStart(2,'0');
+  document.getElementById('qcatTag').textContent = q.cat.toUpperCase();
+  document.getElementById('qtext').textContent = q.q;
+  document.getElementById('qPosition').innerHTML = `Soal <b>${current+1}</b> dari ${TOTAL}`;
 
-            if(!finalPrice) {
-                alert(`Koin "${input}" tidak ditemukan.`);
-                return;
-            }
+  const lettters = ['A','B','C','D','E'];
+  const optsWrap = document.getElementById('options');
+  optsWrap.innerHTML = '';
+  q.opts.forEach((opt, i)=>{
+    const div = document.createElement('div');
+    div.className = 'opt' + (answers[current]===i ? ' selected' : '');
+    div.setAttribute('role','button');
+    div.setAttribute('tabindex','0');
+    div.innerHTML = `<span class="letter">${lettters[i]}</span><span class="otext">${opt}</span>`;
+    div.addEventListener('click', ()=> selectAnswer(i));
+    div.addEventListener('keydown', (e)=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); selectAnswer(i); }});
+    optsWrap.appendChild(div);
+  });
 
-            // Buka Container Layout output
-            outputBox.classList.remove('hidden');
+  document.getElementById('prevBtn').disabled = current===0;
+  document.getElementById('nextBtn').textContent = (current===TOTAL-1) ? 'Lihat Ringkasan →' : 'Selanjutnya →';
 
-            // 1. Generate Acak Angka Skor yang Rasional & Realistis
-            const totalScore = Math.floor(Math.random() * (45 - 25 + 1)) + 25; 
-            const trendScore = Math.floor(Math.random() * (35 - 20 + 1)) + 20;
-            const momentumScore = Math.floor(Math.random() * (40 - 25 + 1)) + 25;
-            const volumeScore = Math.floor(Math.random() * (45 - 35 + 1)) + 35;
-            const structureScore = Math.floor(Math.random() * (45 - 35 + 1)) + 35;
-            const patternScore = Math.floor(Math.random() * (45 - 35 + 1)) + 35;
-            const probability = totalScore; 
+  updateProgress();
+  updateNumGrid();
+}
 
-            const isBearish = totalScore < 50; 
-            const directionText = isBearish ? "SHORT" : "LONG";
+function selectAnswer(i){
+  answers[current] = i;
+  renderQuestion();
+}
 
-            // Injeksi Nilai ke Komponen AI Signal & Score
-            document.getElementById('ai-trend-badge').innerText = isBearish ? "Trend Bearish" : "Trend Bullish";
-            document.getElementById('ai-trend-badge').className = isBearish ? "text-[11px] font-bold px-3 py-1 rounded-xl bg-red-950/60 text-red-400 border border-red-900/40 uppercase tracking-wider" : "text-[11px] font-bold px-3 py-1 rounded-xl bg-emerald-950/60 text-emerald-400 border border-emerald-900/40 uppercase tracking-wider";
-            
-            const signalActionEl = document.getElementById('ai-signal-action');
-            signalActionEl.innerText = isBearish ? "Sell" : "Buy";
-            signalActionEl.className = isBearish ? "text-2xl font-black tracking-tight text-red-500" : "text-2xl font-black tracking-tight text-emerald-500";
+document.getElementById('prevBtn').addEventListener('click', ()=>{
+  if(current>0){ current--; renderQuestion(); }
+});
+document.getElementById('nextBtn').addEventListener('click', ()=>{
+  if(current<TOTAL-1){ current++; renderQuestion(); }
+  else { openGridbar(); }
+});
 
-            // Update Value & Bar Animasi
-            const updateBar = (idVal, idBar, val, color) => {
-                document.getElementById(idVal).innerText = val;
-                const bar = document.getElementById(idBar);
-                bar.style.width = `${val}%`;
-                bar.className = `h-full transition-all duration-500 ${color}`;
-            };
+function updateProgress(){
+  const answeredCount = answers.filter(a=>a!==null).length;
+  document.getElementById('answeredCount').textContent = answeredCount;
+  document.getElementById('progressFill').style.width = (answeredCount/TOTAL*100) + '%';
+}
 
-            const barColor = isBearish ? 'bg-red-500' : 'bg-emerald-500';
-            updateBar('score-total-val', 'score-total-bar', totalScore, barColor);
-            updateBar('score-trend-val', 'score-trend-bar', trendScore, barColor);
-            updateBar('score-momentum-val', 'score-momentum-bar', momentumScore, barColor);
-            updateBar('score-volume-val', 'score-volume-bar', volumeScore, barColor);
-            updateBar('score-structure-val', 'score-structure-bar', structureScore, barColor);
-            updateBar('score-pattern-val', 'score-pattern-bar', patternScore, barColor);
+// ---------- BOTTOM GRID NAV (LJK) ----------
+function buildNumGrid(){
+  const grid = document.getElementById('numgrid');
+  grid.innerHTML = '';
+  for(let i=0;i<TOTAL;i++){
+    const b = document.createElement('button');
+    b.textContent = i+1;
+    b.addEventListener('click', ()=>{ current=i; renderQuestion(); });
+    grid.appendChild(b);
+  }
+}
+function updateNumGrid(){
+  const grid = document.getElementById('numgrid');
+  [...grid.children].forEach((btn, i)=>{
+    btn.classList.toggle('answered', answers[i]!==null);
+    btn.classList.toggle('current', i===current);
+  });
+}
+function openGridbar(){ gridbar.classList.add('open'); }
+document.getElementById('gridToggle').addEventListener('click', ()=>{
+  gridbar.classList.toggle('open');
+});
+document.getElementById('finishBtn').addEventListener('click', ()=>{
+  const unanswered = answers.filter(a=>a===null).length;
+  if(unanswered>0){
+    const ok = confirm(`Masih ada ${unanswered} soal yang belum dijawab. Tetap akhiri ujian dan lihat hasil?`);
+    if(!ok) return;
+  }
+  finishExam();
+});
 
-            document.getElementById('ai-confidence-pct').innerText = `${totalScore}%`;
-            
-            const riskEl = document.getElementById('ai-risk-level');
-            riskEl.innerText = isBearish ? "Medium" : "Low";
-            riskEl.className = isBearish ? "font-bold text-amber-500" : "font-bold text-emerald-400";
+// ---------- FINISH & RESULT ----------
+function finishExam(){
+  if(timerHandle) clearInterval(timerHandle);
+  const timeUsed = TIME_LIMIT - timeLeft;
+  renderResult(timeUsed);
+  showScreen('result');
+}
 
-            // 2. Injeksi Nilai Matematika Finansial ke Komponen Smart Entry System
-            const formatDec = (num) => finalPrice < 1 ? num.toFixed(6) : num.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 4});
+function renderResult(timeUsed){
+  let correct=0, wrong=0, empty=0;
+  const catStats = {};
+  QUESTIONS.forEach((q,i)=>{
+    if(!catStats[q.cat]) catStats[q.cat] = {total:0, correct:0};
+    catStats[q.cat].total++;
+    if(answers[i]===null) empty++;
+    else if(answers[i]===q.ans){ correct++; catStats[q.cat].correct++; }
+    else wrong++;
+  });
 
-            let entryIdeal, entryLow, entryHigh, stopLoss, tp1, tp2, tp3, rrRatio;
+  document.getElementById('scoreBig').textContent = correct;
+  document.getElementById('statCorrect').textContent = correct;
+  document.getElementById('statWrong').textContent = wrong;
+  document.getElementById('statEmpty').textContent = empty;
+  const mm = Math.floor(timeUsed/60).toString().padStart(2,'0');
+  const ss = (timeUsed%60).toString().padStart(2,'0');
+  document.getElementById('statTime').textContent = `${mm}:${ss}`;
 
-            if (isBearish) {
-                entryIdeal = finalPrice * 1.001;
-                entryLow = finalPrice * 0.993;
-                entryHigh = finalPrice * 1.003;
-                stopLoss = finalPrice * 1.013;
-                tp1 = finalPrice * 0.968;
-                tp2 = finalPrice * 0.967;
-                tp3 = finalPrice * 0.897;
-                rrRatio = "1:2.77";
-            } else {
-                entryIdeal = finalPrice * 0.999;
-                entryLow = finalPrice * 0.997;
-                entryHigh = finalPrice * 1.007;
-                stopLoss = finalPrice * 0.987;
-                tp1 = finalPrice * 1.032;
-                tp2 = finalPrice * 1.033;
-                tp3 = finalPrice * 1.103;
-                rrRatio = "1:3.15";
-            }
+  const pct = Math.round(correct/TOTAL*100);
+  let msg;
+  if(pct>=85) msg = "Hasil yang sangat baik. Pertahankan ritme belajar dan perbanyak latihan soal bervariasi.";
+  else if(pct>=65) msg = "Hasil yang cukup baik. Fokuskan latihan tambahan pada kategori dengan skor terendah di bawah ini.";
+  else if(pct>=40) msg = "Masih ada ruang besar untuk berkembang. Pelajari kembali pembahasan setiap soal yang salah, lalu ulangi simulasi ini.";
+  else msg = "Jadikan ini titik awal belajar. Baca pelan-pelan setiap pembahasan di bawah, lalu coba simulasi ini kembali.";
+  document.getElementById('resultMsg').textContent = msg;
 
-            const directionEl = document.getElementById('se-direction');
-            directionEl.innerText = directionText;
-            directionEl.className = isBearish ? "font-bold tracking-wider text-red-500" : "font-bold tracking-wider text-emerald-500";
+  // category breakdown
+  const catList = document.getElementById('catBreakdownList');
+  catList.innerHTML = '';
+  Object.entries(catStats).forEach(([cat, st])=>{
+    const p = Math.round(st.correct/st.total*100);
+    const row = document.createElement('div');
+    row.className = 'cat-row';
+    row.innerHTML = `
+      <span class="cname">${cat}</span>
+      <span class="cat-bar-track"><span class="cat-bar-fill" style="width:${p}%"></span></span>
+      <span class="cval">${st.correct}/${st.total}</span>
+    `;
+    catList.appendChild(row);
+  });
 
-            document.getElementById('se-entry-zone').innerText = `$${formatDec(entryLow)} – $${formatDec(entryHigh)}`;
-            document.getElementById('se-entry-ideal').innerText = `$${formatDec(entryIdeal)}`;
-            
-            const slEl = document.getElementById('se-stop-loss');
-            slEl.innerText = `$${formatDec(stopLoss)}`;
-            slEl.className = "font-mono font-medium text-red-400";
+  renderReviewList('wrong');
+  document.getElementById('filterWrong').classList.add('active');
+  document.getElementById('filterAll').classList.remove('active');
+}
 
-            document.getElementById('se-tp1').innerText = `$${formatDec(tp1)}`;
-            document.getElementById('se-tp2').innerText = `$${formatDec(tp2)}`;
-            document.getElementById('se-tp3').innerText = `$${formatDec(tp3)}`;
-            
-            document.getElementById('se-card-rr').innerText = rrRatio;
-            document.getElementById('se-card-prob').innerText = `${probability}%`;
+function renderReviewList(filter){
+  const wrap = document.getElementById('reviewList');
+  wrap.innerHTML = '';
+  const letters = ['A','B','C','D','E'];
+  let shown = 0;
 
-            // 3. GENERATE ALASAN TRADING AI REASONING
-            const reasoningTextEl = document.getElementById('ai-reasoning-output-text');
-            if (isBearish) {
-                reasoningTextEl.innerHTML = `
-                    <p class="border-b border-gray-800/60 pb-2">⚠️ <strong>Alasan Likuidasi:</strong> Terjadi lonjakan likuidasi posisi <strong>Long</strong>. Penurunan tajam harga menembus level support krusial, memicu <em>long-squeeze</em> beruntun akibat margin yang tidak mencukupi.</p>
-                    <p class="pt-1">📉 <strong>Alasan Entry:</strong> Whales dominan entry <strong>SHORT</strong>. Struktur pasar mengonfirmasi distribusi modal besar di area resistance lokal divalidasi oleh peningkatan Open Interest bursa derivatif Hyperliquid. Whales memanfaatkan pump minor (fakeout) untuk membangun posisi short sebelum dump lanjutan.</p>
-                `;
-            } else {
-                reasoningTextEl.innerHTML = `
-                    <p class="border-b border-gray-800/60 pb-2">🚀 <strong>Alasan Likuidasi:</strong> Terjadi lonjakan likuidasi posisi <strong>Short</strong>. Tekanan beli agresif menembus resistance kuat bursa, memaksa whales beruang melakukan buyback otomatis di harga pasar.</p>
-                    <p class="pt-1">📈 <strong>Alasan Entry:</strong> Whales dominan entry <strong>LONG</strong>. Mengikuti tren akumulasi modal besar pasca akumulasi breakout yang didukung oleh sentimen positif berita makro global. Tren jangka pendek sangat kuat.</p>
-                `;
-            }
+  QUESTIONS.forEach((q,i)=>{
+    const userAns = answers[i];
+    const isCorrect = userAns === q.ans;
+    if(filter==='wrong' && isCorrect) return;
+    shown++;
 
-            // Perbarui News Feed dan Status Sinkronisasi Website
-            mockNewsFeed(isBearish);
-            updateSyncStatus();
-        }
+    const item = document.createElement('div');
+    item.className = 'review-item ' + (isCorrect ? 'correct':'wrong');
 
-        // Jalankan sinkronisasi pertama kali saat web dimuat
-        window.onload = function() {
-            fetchGlobalMacro();
-            mockNewsFeed(false);
-            updateSyncStatus();
-        };
-    </script>
+    const yourAnsText = userAns===null ? '<i>Tidak dijawab</i>' : `${letters[userAns]}. ${q.opts[userAns]}`;
+    const correctAnsText = `${letters[q.ans]}. ${q.opts[q.ans]}`;
+
+    let html = `
+      <div class="ri-top">
+        <span class="ri-num">NO. ${String(i+1).padStart(2,'0')}</span>
+        <span class="ri-cat">${q.cat}</span>
+        <span class="ri-badge ${isCorrect?'ok':'bad'}">${isCorrect ? 'Benar' : (userAns===null?'Kosong':'Salah')}</span>
+      </div>
+      <div class="ri-q">${q.q}</div>
+      <div class="ri-ans"><span class="your">Jawabanmu: ${yourAnsText}</span></div>
+    `;
+    if(!isCorrect){
+      html += `<div class="ri-ans"><span class="correct">Jawaban benar: ${correctAnsText}</span></div>`;
+      html += `<div class="ri-explain"><b>Pembahasan:</b> ${q.exp}</div>`;
+    }
+    item.innerHTML = html;
+    wrap.appendChild(item);
+  });
+
+  if(shown===0){
+    wrap.innerHTML = '<div style="text-align:center; padding:30px; color:var(--ink-soft); font-size:14px;">Tidak ada soal yang salah pada kategori ini. Kerja bagus!</div>';
+  }
+}
+
+document.getElementById('filterWrong').addEventListener('click', ()=>{
+  document.getElementById('filterWrong').classList.add('active');
+  document.getElementById('filterAll').classList.remove('active');
+  renderReviewList('wrong');
+});
+document.getElementById('filterAll').addEventListener('click', ()=>{
+  document.getElementById('filterAll').classList.add('active');
+  document.getElementById('filterWrong').classList.remove('active');
+  renderReviewList('all');
+});
+
+document.getElementById('restartBtn').addEventListener('click', ()=>{
+  answers = new Array(TOTAL).fill(null);
+  current = 0;
+  timeLeft = TIME_LIMIT;
+  gridbar.classList.remove('open');
+  showScreen('landing');
+});
+</script>
 </body>
 </html>
